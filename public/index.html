@@ -1,0 +1,1344 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spotify Library Cleanup | Find Old Liked Songs</title>
+  <meta name="description" content="Review Spotify liked songs and playlists you have not played recently, using Last.fm history or a Spotify export before removing anything.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="http://127.0.0.1:3000/">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Spotify Library Cleanup">
+  <meta property="og:description" content="Find old Spotify tracks, review the candidates, and choose what to remove.">
+  <meta property="og:url" content="http://127.0.0.1:3000/">
+  <meta property="og:image" content="http://127.0.0.1:3000/social-share.svg">
+  <meta property="og:image:alt" content="Spotify library cleanup workspace">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Spotify Library Cleanup">
+  <meta name="twitter:description" content="Find old Spotify tracks, review the candidates, and choose what to remove.">
+  <meta name="twitter:image" content="http://127.0.0.1:3000/social-share.svg">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Spotify Library Cleanup",
+      "url": "http://127.0.0.1:3000/",
+      "description": "Review Spotify tracks that have not been played recently before removing them.",
+      "applicationCategory": "MusicApplication",
+      "operatingSystem": "Web browser"
+    }
+  </script>
+  <template id="legacy-design-notes" hidden>
+    <!-- Historical markup retained for audit only; inactive by design. -->
+    <style>
+    :root {
+      color-scheme: light;
+      font-family: "DM Sans", sans-serif;
+      --canvas: #f7f7f5;
+      --surface: #ffffff;
+      --ink: #202220;
+      --muted: #70746f;
+      --line: #dedfdb;
+      --soft: #f0f1ee;
+      --accent: #1f6b4d;
+      --accent-dark: #174f39;
+      --focus: #91bca6;
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { min-width: 320px; margin: 0; color: var(--ink); background: var(--canvas); }
+    .topbar { background: var(--surface); border-bottom: 1px solid var(--line); }
+    .topbar-inner { display: flex; align-items: center; justify-content: space-between; width: min(1160px, calc(100% - 3rem)); min-height: 64px; margin: 0 auto; }
+    .brand { display: inline-flex; align-items: center; gap: .6rem; color: var(--ink); font-size: .9rem; font-weight: 700; text-decoration: none; }
+    .brand-mark { display: inline-block; width: 9px; height: 9px; background: var(--accent); border-radius: 50%; }
+    .login { padding: .55rem .8rem; color: var(--ink); border: 1px solid var(--line); border-radius: 6px; font-size: .78rem; font-weight: 600; text-decoration: none; }
+    .login:hover { border-color: var(--ink); background: var(--soft); }
+    main { display: grid; grid-template-columns: minmax(180px, .55fr) minmax(0, 1.45fr); gap: clamp(2.5rem, 7vw, 7rem); width: min(1160px, calc(100% - 3rem)); margin: 0 auto; padding: 5rem 0 6rem; }
+    .intro { align-self: start; position: sticky; top: 2rem; padding-top: .25rem; }
+    .eyebrow { margin: 0 0 1rem; color: var(--accent); font-size: .68rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+    .intro h1 { max-width: 310px; margin: 0; color: var(--ink); font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 700; letter-spacing: -.045em; line-height: 1.02; }
+    .intro p { max-width: 280px; margin: 1.25rem 0 0; color: var(--muted); font-size: .9rem; line-height: 1.55; }
+    .intro-meta { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .75rem; line-height: 1.45; }
+    .intro-meta strong { display: block; margin-bottom: .35rem; color: var(--ink); font-size: .7rem; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; }
+    .workflow { display: grid; gap: .8rem; margin: 2rem 0 0; padding: 0; list-style: none; color: var(--muted); font-size: .75rem; }
+    .workflow li { display: flex; gap: .65rem; align-items: baseline; }
+    .workflow li::before { content: counter(item); flex: 0 0 1.35rem; color: var(--accent); font-weight: 700; counter-increment: item; }
+    .workflow { counter-reset: item; }
+    .workflow strong { color: var(--ink); font-weight: 650; }
+    form, section { grid-column: 2; width: 100%; margin: 0 0 1.25rem; padding: 0; background: transparent; border: 0; }
+    form { max-width: 680px; }
+    section { max-width: 680px; padding-top: 1.25rem; border-top: 1px solid var(--line); }
+    h2 { margin: 0 0 1.5rem; color: var(--ink); font-size: 1rem; font-weight: 600; letter-spacing: -.01em; }
+    form h2:nth-of-type(2) { margin-top: 2.75rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+    label { display: block; margin: 1.35rem 0; color: var(--ink); font-size: .8rem; font-weight: 600; }
+    input, select, button { font: inherit; }
+    input, select { min-height: 42px; padding: .6rem .7rem; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+    input::placeholder { color: #9a9d98; }
+    input:focus, select:focus, button:focus-visible, a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+    input[type="text"], input[type="number"], select { min-width: 260px; }
+    button { min-height: 42px; padding: .6rem .85rem; cursor: pointer; color: #fff; background: var(--accent); border: 1px solid var(--accent); border-radius: 6px; font-size: .8rem; font-weight: 650; }
+    button.secondary { color: var(--ink); background: var(--surface); border-color: var(--line); }
+    button:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+    button.secondary:hover { color: var(--ink); background: var(--soft); border-color: #c7c9c4; }
+    button:disabled { opacity: .55; cursor: wait; }
+    #target-help, #playlist-help { margin: -.5rem 0 1rem; padding: .75rem .85rem; background: var(--soft); border-radius: 6px; }
+    #lastfm-profile, #playlist-profile { margin: 1rem 0; padding: .85rem; color: var(--accent-dark); background: var(--soft); border: 1px solid var(--line); border-radius: 6px; }
+    #message { min-height: 1.4rem; margin: 0; }
+    table { width: 100%; margin-top: 1.25rem; border-collapse: collapse; background: var(--surface); }
+    th, td { padding: .8rem .65rem; text-align: left; border-bottom: 1px solid var(--line); }
+    th { color: var(--muted); font-size: .64rem; font-weight: 500; letter-spacing: .04em; text-transform: uppercase; }
+    td { font-size: .88rem; }
+    .muted { color: var(--muted); font-size: .84rem; line-height: 1.55; }
+    main > * { animation: enter .45s ease-out both; }
+    main > form { animation-delay: .08s; }
+    main > section { animation-delay: .16s; }
+    @keyframes enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @media (prefers-reduced-motion: reduce) { main > * { animation: none; } }
+    @media (max-width: 700px) {
+      .topbar-inner, main { width: min(100% - 2rem, 680px); }
+      main { display: block; padding-top: 2.5rem; }
+      .intro { position: static; margin-bottom: 3.5rem; }
+      .intro h1 { max-width: 420px; }
+      .intro p { max-width: 420px; }
+      .intro-meta { max-width: 420px; margin-top: 2rem; }
+      form, section { max-width: none; }
+    }
+    @media (max-width: 600px) {
+      input[type="text"], input[type="number"], select { width: 100%; min-width: 0; }
+      form label > div { display: block !important; }
+      form label > div > * { width: 100%; margin-top: .5rem; }
+      table { display: block; overflow-x: auto; white-space: nowrap; }
+      th, td { padding: .65rem .4rem; }
+    }
+    /* Workspace composition */
+    .topbar { color: #f5f6f2; background: #17211b; border-bottom: 0; }
+    .topbar-inner { width: min(1280px, calc(100% - 3rem)); min-height: 72px; }
+    .brand { color: #f5f6f2; }
+    .brand-mark { background: #a7d46f; }
+    .login { color: #f5f6f2; border-color: #536157; }
+    .login:hover { color: #17211b; background: #f5f6f2; border-color: #f5f6f2; }
+    main { grid-template-columns: 230px minmax(0, 760px); gap: 3.5rem; align-items: start; width: min(1280px, calc(100% - 3rem)); padding: 3.5rem 0 6rem; }
+    .intro { position: static; min-height: 520px; margin: 0; padding: 1.5rem; color: #d9dfd8; background: #243129; border-radius: 10px; }
+    .eyebrow { color: #a7d46f; }
+    .intro h1 { max-width: 190px; color: #f5f6f2; font-size: 2rem; letter-spacing: -.04em; }
+    .intro p { max-width: 190px; color: #b8c2b9; }
+    .workflow { gap: 1rem; margin-top: 3rem; color: #aeb9ae; }
+    .workflow li::before { color: #a7d46f; }
+    .workflow strong { color: #f5f6f2; }
+    .intro-meta { margin-top: 3rem; color: #b8c2b9; border-color: #536157; }
+    .intro-meta strong { color: #a7d46f; }
+    form, section { grid-column: 2; max-width: none; margin: 0; padding: 2rem; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+    form { box-shadow: 0 12px 28px rgb(23 33 27 / 7%); }
+    form h2:nth-of-type(2) { margin-top: 2.5rem; }
+    section { margin-top: 1rem; padding: 1.25rem 2rem; box-shadow: none; }
+    button[type="submit"] { min-width: 150px; margin-top: .25rem; color: #17211b; background: #a7d46f; border-color: #a7d46f; }
+    button[type="submit"]:hover { color: #17211b; background: #b9e38a; border-color: #b9e38a; }
+    @media (max-width: 700px) {
+      main { width: min(100% - 2rem, 760px); padding-top: 2rem; }
+      .intro { min-height: 0; padding: 1.25rem; }
+      .intro h1 { max-width: 340px; }
+      .intro p { max-width: 420px; }
+      .workflow { display: flex; flex-wrap: wrap; margin-top: 2rem; }
+      .intro-meta { margin-top: 2rem; }
+      form, section { padding: 1.25rem; }
+    }
+    /* Signature details: flat geometry, typographic hierarchy, one sharp accent. */
+    :root { --canvas: #eeefeb; --surface: #fbfcf8; --line: #cbd1c8; --accent: #b9e84f; --accent-dark: #263d12; --focus: #6d9130; }
+    .brand-mark { width: 4px; height: 16px; border-radius: 0; box-shadow: 6px 0 0 #668532, 12px 0 0 #d9f59a; }
+    .brand { gap: 1.1rem; letter-spacing: .08em; text-transform: uppercase; }
+    .login, input, select, button, #target-help, #playlist-help, #lastfm-profile, #playlist-profile, .intro, form, section { border-radius: 0; }
+    .login { font-size: .68rem; letter-spacing: .02em; text-transform: uppercase; }
+    main { display: block; width: min(980px, calc(100% - 3rem)); padding: 3.5rem 0 6rem; }
+    .intro { position: static; min-height: 0; margin: 0 0 3rem; padding: 0 0 1.5rem; color: var(--ink); background: transparent; border: 0; border-bottom: 1px solid var(--line); }
+    .eyebrow { color: var(--accent-dark); }
+    .intro h1 { max-width: 640px; color: var(--ink); font-size: clamp(2.4rem, 6vw, 4.5rem); letter-spacing: -.06em; }
+    .intro p { max-width: 560px; color: var(--muted); }
+    .workflow { display: flex; gap: 1.5rem; margin: 2rem 0 0; color: var(--muted); }
+    .workflow li::before { color: var(--accent-dark); }
+    .workflow strong { color: var(--ink); }
+    .intro-meta { max-width: 320px; margin-top: 1.5rem; color: var(--muted); border-color: var(--line); }
+    .intro-meta strong { color: var(--accent-dark); }
+    form, section { max-width: none; margin: 0; padding: 0; background: transparent; border: 0; border-radius: 0; }
+    form { display: grid; grid-template-columns: 1fr 1fr; column-gap: 3rem; border-top: 4px solid var(--accent); }
+    form h2 { grid-column: span 2; margin-top: 0; padding: 1rem 0 .8rem; border-bottom: 2px solid var(--ink); }
+    form h2:nth-of-type(2) { margin-top: 2rem; padding-top: 1rem; border-top: 0; }
+    form > label, form > #target-help, form > #playlist-help, form > #lastfm-profile, form > #playlist-profile, form > #playlist-picker-wrap { grid-column: span 2; }
+    section { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #aeb8ad; }
+    input, select { background: #fff; border-color: #aeb8ad; }
+    button { border-radius: 0; }
+    button[type="submit"] { min-width: 150px; margin-top: .25rem; color: #17211b; background: var(--accent); border-color: var(--accent); }
+    #target-help, #playlist-help { border-left: 3px solid #aeb8ad; }
+    #lastfm-profile, #playlist-profile { border-left: 3px solid var(--accent); }
+    @media (max-width: 700px) {
+      main { width: min(100% - 2rem, 760px); padding-top: 2rem; }
+      .intro { min-height: 0; padding: 0 0 1.25rem; }
+      .intro h1 { max-width: 420px; }
+      .intro p { max-width: 420px; }
+      .workflow { display: flex; flex-wrap: wrap; margin-top: 2rem; }
+      .intro-meta { margin-top: 2rem; }
+      form { display: block; }
+      form h2 { margin-top: 2rem; }
+      form h2:first-child { margin-top: 0; }
+    }
+    :root {
+      --canvas: #f4f5f1;
+      --surface: #ffffff;
+      --ink: #172019;
+      --muted: #4f5c52;
+      --line: #b9c4ba;
+      --soft: #e8ede8;
+      --accent: #d4f36a;
+      --accent-dark: #253b16;
+      --focus: #245f39;
+    }
+    body { font-size: 1rem; line-height: 1.5; }
+    .topbar { color: var(--ink); background: var(--surface); border-bottom: 1px solid var(--line); }
+    .topbar-inner { width: min(1040px, calc(100% - 2.5rem)); min-height: 60px; }
+    .brand { color: var(--ink); }
+    .brand-mark { width: 8px; height: 8px; background: var(--accent-dark); box-shadow: none; }
+    .login { color: var(--accent-dark); border-color: var(--accent-dark); font-family: inherit; font-size: .9rem; letter-spacing: 0; text-transform: none; }
+    .login:hover { color: var(--ink); background: var(--accent); border-color: var(--accent-dark); }
+    main { width: min(760px, calc(100% - 2.5rem)); padding: 3.25rem 0 5rem; }
+    .intro { margin-bottom: 2.5rem; padding: 0; border: 0; }
+    .eyebrow { margin-bottom: .5rem; color: var(--accent-dark); font-size: .85rem; font-weight: 700; letter-spacing: 0; text-transform: none; }
+    .intro h1 { max-width: 620px; margin: 0; color: var(--ink); font-size: clamp(1.75rem, 4vw, 2.4rem); font-weight: 700; letter-spacing: -.02em; line-height: 1.15; }
+    .intro p { max-width: 560px; margin-top: .75rem; color: var(--muted); font-size: 1rem; }
+    .workflow { display: flex; gap: 1.25rem; margin-top: 1.5rem; padding: .75rem 0; color: var(--muted); font-size: .9rem; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .workflow li { gap: .45rem; }
+    .workflow li::before { flex-basis: auto; color: var(--accent-dark); content: counter(item) "."; }
+    .workflow strong { color: var(--ink); font-weight: 700; }
+    .intro-meta { margin-top: 1rem; padding: 0; color: var(--muted); border: 0; font-size: .9rem; }
+    .intro-meta strong { display: inline; margin-right: .35rem; color: var(--ink); font-family: inherit; font-size: .9rem; letter-spacing: 0; text-transform: none; }
+    form { display: block; border: 0; }
+    form h2 { margin: 2rem 0 1rem; padding: 0; color: var(--ink); border: 0; font-size: 1.2rem; line-height: 1.25; }
+    form h2:first-child { margin-top: 0; }
+    label { margin: 1.25rem 0; font-size: 1rem; }
+    input, select, button { min-height: 46px; }
+    input, select { padding: .65rem .75rem; border-color: #89988b; }
+    input[type="text"], input[type="number"], select { min-width: 280px; }
+    input:focus, select:focus, button:focus-visible, a:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+    button { padding: .65rem 1rem; color: #172019; background: var(--accent); border-color: var(--accent-dark); font-size: 1rem; font-weight: 700; }
+    button.secondary { color: var(--accent-dark); background: var(--surface); border-color: var(--accent-dark); }
+    button:hover { color: #172019; background: #e4fa96; border-color: var(--accent-dark); }
+    button.secondary:hover { color: var(--ink); background: var(--soft); }
+    #target-help, #playlist-help { margin: -.25rem 0 1.25rem; padding: .75rem 1rem; color: var(--muted); background: var(--soft); border-left: 3px solid var(--accent-dark); font-size: .95rem; }
+    #lastfm-profile, #playlist-profile { padding: .75rem 1rem; color: var(--accent-dark); background: var(--soft); border: 0; border-left: 3px solid var(--accent-dark); }
+    section { margin-top: 2.5rem; padding: 1rem 0 0; border-top: 1px solid var(--line); }
+    section h2 { margin: 0 0 .5rem; font-size: 1.2rem; }
+    .muted { font-size: .95rem; }
+    table { background: var(--surface); }
+    th { color: var(--muted); font-family: inherit; font-size: .8rem; letter-spacing: 0; text-transform: none; }
+    td { font-size: 1rem; }
+    @media (max-width: 600px) {
+      .topbar-inner, main { width: min(100% - 2rem, 760px); }
+      .workflow { display: grid; gap: .4rem; }
+      input[type="text"], input[type="number"], select { min-width: 0; width: 100%; }
+    }
+    [data-theme="dark"] {
+      color-scheme: dark;
+      --canvas: #151a16;
+      --surface: #1d241f;
+      --ink: #eef4ec;
+      --muted: #bdc9bd;
+      --line: #4b5a4d;
+      --soft: #29352c;
+      --accent: #d4f36a;
+      --accent-dark: #d4f36a;
+      --focus: #efffb2;
+    }
+    [data-theme="dark"] .topbar { background: #101510; }
+    [data-theme="dark"] .brand-mark { background: var(--accent); }
+    [data-theme="dark"] .login { color: var(--ink); border-color: var(--line); }
+    [data-theme="dark"] .login:hover { color: #101510; background: var(--accent); }
+    [data-theme="dark"] input, [data-theme="dark"] select { background: #101510; border-color: var(--line); }
+    [data-theme="dark"] button.secondary { color: var(--ink); background: var(--surface); border-color: var(--line); }
+    [data-theme="dark"] button.secondary:hover { background: var(--soft); border-color: var(--accent); }
+    [data-theme="dark"] table { background: var(--surface); }
+    .theme-toggle { margin-right: .5rem; color: var(--ink); background: transparent; border-color: var(--line); }
+    .theme-toggle:hover { color: var(--ink); background: var(--soft); border-color: var(--ink); }
+    .topbar-actions { display: flex; align-items: center; gap: .5rem; }
+    .theme-toggle { display: inline-grid; width: 46px; height: 46px; margin-right: .25rem; padding: 0; place-items: center; font-size: 1.35rem; }
+    .action-icon { display: inline-block; margin-right: .35rem; font-size: 1.1em; line-height: 0; }
+    .section-icon, .action-icon { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
+    .section-icon { width: 1.2rem; height: 1.2rem; margin-right: .5rem; vertical-align: -.2rem; color: var(--accent-dark); }
+    .action-icon { width: 1.05rem; height: 1.05rem; vertical-align: -.18rem; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    /* Last.fm-inspired listening console: dense, dark, red-signal, and music-first. */
+    :root { --canvas: #151515; --surface: #202020; --ink: #f1f1f1; --muted: #a7a7a7; --line: #3a3a3a; --soft: #292929; --accent: #e31b23; --accent-dark: #ff4b51; --focus: #ff9b9f; }
+    body { background: var(--canvas); }
+    .topbar { color: var(--ink); background: #0f0f0f; border-bottom: 1px solid #343434; }
+    .topbar-inner { width: min(1120px, calc(100% - 3rem)); min-height: 64px; }
+    .brand { color: var(--ink); font-weight: 700; }
+    .brand-mark { width: 18px; height: 18px; background: var(--accent); border: 0; box-shadow: inset 0 -5px 0 rgb(0 0 0 / 18%); }
+    .site-nav { display: flex; gap: 1.5rem; margin-left: auto; margin-right: 2rem; }
+    .site-nav a { color: #aaa; font-size: .9rem; text-decoration: none; }
+    .site-nav a:hover, .site-nav a:focus-visible { color: #fff; }
+    .login { color: var(--ink); border-color: #555; }
+    .login:hover { color: #fff; background: var(--accent); border-color: var(--accent); }
+    .theme-toggle { color: var(--ink); border-color: #555; }
+    .theme-toggle:hover { color: #fff; background: #333; border-color: #777; }
+    main { width: min(1120px, calc(100% - 3rem)); padding: 2.75rem 0 5rem; }
+    .intro { grid-template-columns: minmax(0, 1fr) auto; margin-bottom: 1.75rem; padding: 0 0 1.5rem; border-bottom: 1px solid var(--line); }
+    .eyebrow { color: #e85a5f; font-size: .78rem; letter-spacing: .04em; }
+    .intro h1 { max-width: none; color: #fff; font-size: clamp(1.8rem, 4vw, 2.75rem); font-weight: 600; letter-spacing: -.025em; }
+    .intro p { max-width: 560px; color: var(--muted); }
+    .workflow { min-width: 390px; gap: .8rem; }
+    .workflow li { border-color: #444; }
+    .workflow li:first-child { border-color: var(--accent); }
+    .workflow li::before { color: #888; }
+    .workflow strong { color: #ddd; font-size: .82rem; }
+    .intro-meta { color: #999; }
+    .intro-meta strong { color: #ddd; }
+    form { gap: 0 2rem; padding: 1.5rem; background: var(--surface); border: 1px solid var(--line); border-top: 3px solid var(--accent); border-radius: 4px; }
+    form h2 { color: #fff; }
+    form h2:nth-of-type(2) { border-color: var(--line); }
+    label { color: #ddd; }
+    input, select { color: #f4f4f4; background: #151515; border-color: #555; border-radius: 3px; }
+    input::placeholder { color: #818181; }
+    input:focus, select:focus, button:focus-visible, a:focus-visible { outline-color: var(--focus); }
+    button { color: #fff; background: var(--accent); border-color: var(--accent); border-radius: 3px; }
+    button:hover { color: #fff; background: var(--accent-dark); border-color: var(--accent-dark); }
+    button.secondary { color: #ddd; background: transparent; border-color: #666; }
+    button.secondary:hover { color: #fff; background: #333; border-color: #aaa; }
+    #target-help, #playlist-help, #lastfm-profile, #playlist-profile { color: #bbb; background: var(--soft); border-left-color: var(--accent); }
+    section { border-color: var(--line); }
+    section h2 { color: #fff; }
+    table { background: var(--surface); border-top-color: var(--accent); }
+    th { color: #aaa; }
+    td { color: #eee; border-color: var(--line); }
+    .section-icon { color: #ef6468; }
+    @media (max-width: 800px) { .intro { display: block; } .workflow { min-width: 0; margin-top: 1.5rem; } }
+    @media (max-width: 600px) { .topbar-inner, main { width: min(100% - 2rem, 760px); } .site-nav { display: none; } form { padding: 1rem; } }
+    [data-theme="light"] { --canvas: #f3f3f3; --surface: #fff; --ink: #1b1b1b; --muted: #666; --line: #d2d2d2; --soft: #ededed; --accent: #d91820; --accent-dark: #ad1118; --focus: #7c1117; }
+    [data-theme="light"] .topbar { color: var(--ink); background: #fff; border-color: #d5d5d5; }
+    [data-theme="light"] .brand, [data-theme="light"] .intro h1, [data-theme="light"] form h2, [data-theme="light"] section h2 { color: var(--ink); }
+    [data-theme="light"] .site-nav a { color: #666; }
+    [data-theme="light"] .site-nav a:hover { color: var(--accent); }
+    [data-theme="light"] .login { color: var(--ink); border-color: #aaa; }
+    [data-theme="light"] .login:hover { color: #fff; background: var(--accent); border-color: var(--accent); }
+    [data-theme="light"] form { background: #fff; }
+    [data-theme="light"] input, [data-theme="light"] select { color: var(--ink); background: #fafafa; border-color: #aaa; }
+    [data-theme="light"] button.secondary { color: var(--ink); }
+    [data-theme="light"] td { color: var(--ink); }
+    /* Archive audit system: compact, operational, and intentionally not card-based. */
+    body { background: var(--canvas); }
+    .topbar { border-bottom: 3px solid var(--ink); }
+    .topbar-inner { width: min(1120px, calc(100% - 3rem)); min-height: 68px; }
+    .brand { gap: .8rem; letter-spacing: .02em; }
+    .brand-mark { width: 12px; height: 12px; background: var(--accent-dark); border: 3px solid var(--accent); }
+    .topbar-actions { gap: .75rem; }
+    .login { padding: .5rem .75rem; font-weight: 700; }
+    main { width: min(1120px, calc(100% - 3rem)); padding: 2.5rem 0 5rem; }
+    .intro { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3rem; align-items: end; margin-bottom: 2rem; padding: 0 0 1.5rem; border-bottom: 1px solid var(--line); }
+    .eyebrow { margin-bottom: .65rem; color: var(--accent-dark); font-size: .8rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .intro h1 { max-width: none; font-size: clamp(1.8rem, 4vw, 2.8rem); letter-spacing: -.025em; line-height: 1.05; }
+    .intro p { max-width: 520px; margin-top: .6rem; }
+    .workflow { display: grid; grid-template-columns: repeat(3, minmax(110px, 1fr)); gap: 1rem; min-width: 360px; margin: 0; padding: 0; border: 0; }
+    .workflow li { display: block; padding-top: .65rem; border-top: 3px solid var(--line); }
+    .workflow li::before { display: block; margin-bottom: .35rem; color: var(--muted); font-size: .8rem; }
+    .workflow li:first-child { border-color: var(--accent-dark); }
+    .workflow strong { font-size: .85rem; line-height: 1.2; }
+    .intro-meta { grid-column: 1 / -1; max-width: none; margin: 0; padding: .75rem 0 0; font-size: .85rem; }
+    form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 2.5rem; padding: 1.5rem 0 0; border-top: 4px solid var(--ink); }
+    form h2 { grid-column: 1 / -1; margin: 0 0 1rem; padding: 0; font-size: 1.1rem; }
+    form h2:nth-of-type(2) { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+    form > label, form > #target-help, form > #playlist-help, form > #lastfm-profile, form > #playlist-profile, form > #playlist-picker-wrap { grid-column: auto; }
+    form > #target-help, form > #playlist-help, form > #lastfm-profile, form > #playlist-profile, form > #playlist-picker-wrap { grid-column: 1 / -1; }
+    label { margin: .75rem 0 1.25rem; }
+    input[type="text"], input[type="number"], select { width: 100%; min-width: 0; }
+    form > button[type="submit"] { grid-column: 1 / -1; justify-self: start; margin-top: .5rem; }
+    section { margin-top: 2rem; padding: 1.25rem 0 0; border-top: 1px solid var(--line); }
+    section h2 { margin: 0 0 .5rem; font-size: 1.1rem; }
+    #message { padding-left: 1.7rem; }
+    #review { margin-top: 3rem; }
+    #review > button { margin: .5rem 0 0 1.7rem; }
+    table { margin-top: 1rem; border-top: 2px solid var(--ink); }
+    th, td { padding: .75rem .5rem; }
+    @media (max-width: 800px) {
+      .intro { display: block; }
+      .workflow { margin-top: 1.5rem; }
+      form { display: block; }
+      form h2:nth-of-type(2) { margin-top: 1.5rem; }
+      form > button[type="submit"] { margin-top: .5rem; }
+    }
+    @media (max-width: 600px) {
+      .topbar-inner, main { width: min(100% - 2rem, 760px); }
+      .topbar-inner { min-height: 60px; }
+      .login { font-size: .82rem; }
+      .intro { margin-bottom: 1.5rem; }
+      .workflow { grid-template-columns: 1fr; min-width: 0; gap: .5rem; }
+      .workflow li { display: flex; gap: .5rem; padding-top: .45rem; }
+      .workflow li::before { display: inline; margin: 0; }
+      .intro-meta { margin-top: 1rem; }
+    }
+
+    /* Final visual system: a quiet archive desk with one signal color. */
+    :root {
+      --canvas: #e8e6df;
+      --surface: #f7f5ef;
+      --ink: #1e2826;
+      --muted: #68716c;
+      --line: #b9c0b7;
+      --soft: #dfe3dc;
+      --accent: #f05a47;
+      --accent-dark: #b7352a;
+      --focus: #2d6f68;
+      font-family: "Space Grotesk", sans-serif;
+    }
+    body { min-width: 320px; background: var(--canvas); }
+    .topbar { color: var(--ink); background: var(--surface); border-bottom: 1px solid var(--line); }
+    .topbar-inner { width: min(1180px, calc(100% - 3rem)); min-height: 72px; }
+    .brand { gap: .7rem; color: var(--ink); font-size: .9rem; letter-spacing: -.02em; text-transform: none; }
+    .brand-mark { width: 18px; height: 18px; background: var(--accent); border: 0; box-shadow: 5px 5px 0 #f4ba4d; }
+    .site-nav { display: flex; gap: 1.25rem; margin-left: auto; margin-right: 1.5rem; }
+    .breadcrumbs { display: flex; flex-wrap: wrap; gap: .55rem; margin: 0 0 1.5rem; color: var(--muted); font-size: .8rem; }
+    .breadcrumbs a, .site-footer a { color: var(--accent-dark); font-weight: 700; }
+    .site-footer { display: flex; justify-content: space-between; gap: 1rem; width: min(1080px, calc(100% - 2.5rem)); margin: 0 auto; padding: 1rem 0 2rem; color: var(--muted); border-top: 1px solid var(--line); font-size: .8rem; }
+    .intro-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.35rem; }
+    .intro-actions a { display: inline-block; padding: .65rem .85rem; color: #fff; background: var(--accent); border: 1px solid var(--accent); border-radius: 4px; font-size: .85rem; font-weight: 700; text-decoration: none; }
+    .intro-actions a:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+    .response-note { margin: 1rem 0 0; color: var(--muted); font-size: .8rem; }
+    .faq-list { display: grid; gap: .5rem; }
+    .faq-list details { padding: .7rem 0; border-bottom: 1px solid var(--line); }
+    .faq-list summary { cursor: pointer; color: var(--ink); font-weight: 700; }
+    .faq-list p { margin: .6rem 0 0; }
+    .mobile-cta { display: none; }
+    .skip-link { position: fixed; top: -4rem; left: 1rem; z-index: 20; padding: .65rem .85rem; color: #fff; background: var(--ink); font-weight: 700; text-decoration: none; }
+    .skip-link:focus { top: 1rem; }
+    .topbar { position: sticky; top: 0; z-index: 10; }
+    .scroll-progress { position: fixed; top: 0; left: 0; z-index: 15; width: 0; height: 3px; background: var(--accent); }
+    .menu-toggle { display: none; }
+    .theme-toggle { position: relative; display: inline-grid; width: 42px; height: 42px; margin: 0; padding: 0; place-items: center; color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 50%; }
+    .theme-toggle:hover, .theme-toggle:focus-visible { color: var(--accent-dark); background: var(--soft); border-color: var(--accent-dark); }
+    .theme-toggle::after { position: absolute; top: calc(100% + .55rem); right: 0; width: max-content; padding: .35rem .5rem; color: var(--surface); background: var(--ink); border-radius: 3px; content: attr(data-tooltip); font-size: .7rem; font-weight: 700; opacity: 0; pointer-events: none; transform: translateY(-3px); transition: opacity .15s ease, transform .15s ease; }
+    .theme-toggle:hover::after, .theme-toggle:focus-visible::after { opacity: 1; transform: translateY(0); }
+    .status-success { color: var(--accent-dark); }
+    .status-error { color: #a52f29; }
+    .is-loading { position: relative; color: transparent !important; pointer-events: none; }
+    .is-loading::after { position: absolute; top: 50%; left: 50%; width: 1rem; height: 1rem; margin: -.5rem; border: 2px solid var(--ink); border-right-color: transparent; border-radius: 50%; content: ""; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .cookie-banner { position: fixed; right: 1rem; bottom: 1rem; z-index: 12; display: flex; align-items: center; gap: 1rem; width: min(520px, calc(100% - 2rem)); padding: .85rem 1rem; color: var(--ink); background: var(--surface); border: 1px solid var(--line); box-shadow: 0 8px 24px rgb(0 0 0 / 15%); }
+    .cookie-banner p { margin: 0; color: var(--muted); font-size: .78rem; line-height: 1.4; }
+    .cookie-banner button { flex: 0 0 auto; min-height: 36px; padding: .45rem .65rem; }
+    .scroll-top { position: fixed; right: 1rem; bottom: 1rem; z-index: 8; width: 42px; min-height: 42px; padding: 0; }
+    dialog { max-width: min(440px, calc(100% - 2rem)); padding: 1.25rem; color: var(--ink); background: var(--surface); border: 1px solid var(--line); box-shadow: 0 12px 40px rgb(0 0 0 / 25%); }
+    dialog::backdrop { background: rgb(0 0 0 / 48%); }
+    dialog h2 { margin: 0 0 .5rem; }
+    dialog p { color: var(--muted); font-size: .9rem; }
+    .dialog-actions { display: flex; justify-content: flex-end; gap: .6rem; margin-top: 1rem; }
+    @media print {
+      .topbar, .mobile-cta, .cookie-banner, .intro-actions, .scroll-progress, button, input, select, .site-footer a { display: none !important; }
+      body, [data-theme="dark"] { color: #000; background: #fff; }
+      main { width: 100%; padding: 0; }
+      form, section, .intro { border-color: #000; }
+      a { color: #000; }
+    }
+    .topbar-actions { gap: .65rem; }
+    .theme-toggle { width: 42px; height: 42px; margin: 0; color: var(--ink); border-color: var(--line); }
+    .theme-toggle:hover { color: var(--ink); background: var(--soft); border-color: var(--ink); }
+    .login { padding: .65rem .9rem; color: var(--surface); background: var(--ink); border-color: var(--ink); border-radius: 2px; font-size: .82rem; font-weight: 600; }
+    .login:hover { color: var(--surface); background: var(--accent-dark); border-color: var(--accent-dark); }
+    main { width: min(1180px, calc(100% - 3rem)); padding: 4.5rem 0 7rem; }
+    .intro { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 4rem; align-items: end; margin-bottom: 3.25rem; padding: 0 0 2rem; border-bottom: 1px solid var(--ink); }
+    .eyebrow { margin-bottom: .9rem; color: var(--accent-dark); font-family: "IBM Plex Mono", monospace; font-size: .72rem; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; }
+    .intro h1 { max-width: 650px; color: var(--ink); font-size: clamp(2.5rem, 6vw, 5.4rem); font-weight: 600; letter-spacing: -.075em; line-height: .95; }
+    .intro p { max-width: 530px; margin-top: 1.35rem; color: var(--muted); font-size: 1rem; line-height: 1.55; }
+    .workflow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 0; color: var(--muted); font-family: "IBM Plex Mono", monospace; font-size: .72rem; }
+    .workflow li { display: block; padding-top: .7rem; border-top: 2px solid var(--line); }
+    .workflow li:first-child { border-color: var(--accent); }
+    .workflow li::before { display: block; margin-bottom: .65rem; color: var(--accent-dark); content: "0" counter(item); font-size: .68rem; }
+    .workflow strong { display: block; color: var(--ink); font-family: "Space Grotesk", sans-serif; font-size: .85rem; line-height: 1.2; }
+    .intro-meta { grid-column: 1 / -1; max-width: none; margin: 0; padding: .8rem 0 0; color: var(--muted); border: 0; font-family: "IBM Plex Mono", monospace; font-size: .72rem; }
+    .intro-meta strong { display: inline; margin-right: .4rem; color: var(--accent-dark); font-family: inherit; font-size: inherit; letter-spacing: 0; text-transform: uppercase; }
+    form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 3rem; padding: 0 0 2rem; border: 0; border-bottom: 1px solid var(--ink); }
+    form h2 { grid-column: 1 / -1; margin: 0 0 1.4rem; padding: 0 0 .8rem; color: var(--ink); border-bottom: 2px solid var(--ink); font-size: 1.25rem; font-weight: 600; }
+    form h2:nth-of-type(2) { margin-top: 2.75rem; padding-top: 0; border-top: 0; }
+    .section-icon { width: 1.1rem; height: 1.1rem; margin-right: .45rem; color: var(--accent-dark); }
+    label { margin: .75rem 0 1.4rem; color: var(--ink); font-size: .9rem; font-weight: 600; }
+    input, select { min-height: 48px; padding: .7rem .8rem; color: var(--ink); background: var(--surface); border: 1px solid #8e9a90; border-radius: 2px; }
+    input[type="text"], input[type="number"], select { width: 100%; min-width: 0; }
+    button { min-height: 48px; padding: .7rem 1rem; color: var(--surface); background: var(--ink); border: 1px solid var(--ink); border-radius: 2px; font-size: .88rem; font-weight: 600; }
+    button:hover { color: var(--surface); background: var(--accent-dark); border-color: var(--accent-dark); }
+    button.secondary { color: var(--ink); background: transparent; border-color: #8e9a90; }
+    button.secondary:hover { color: var(--ink); background: var(--soft); border-color: var(--ink); }
+    button[type="submit"] { grid-column: 1 / -1; justify-self: start; min-width: 190px; margin-top: .5rem; color: var(--surface); background: var(--accent); border-color: var(--accent); }
+    button[type="submit"]:hover { color: var(--surface); background: var(--accent-dark); border-color: var(--accent-dark); }
+    #target-help, #playlist-help, #lastfm-profile, #playlist-profile { margin: -.25rem 0 1.25rem; padding: .8rem 1rem; color: var(--muted); background: var(--soft); border: 0; border-left: 3px solid var(--accent); border-radius: 0; font-size: .86rem; }
+    section { margin-top: 2.5rem; padding: 1.2rem 0 0; border-top: 1px solid var(--line); }
+    section h2 { margin: 0 0 .55rem; color: var(--ink); font-size: 1.25rem; font-weight: 600; }
+    .muted { color: var(--muted); font-size: .9rem; }
+    #message { padding-left: 1.55rem; }
+    #review { margin-top: 4rem; }
+    #review > button { margin: .5rem 0 0 1.55rem; }
+    table { margin-top: 1.5rem; background: var(--surface); border-top: 2px solid var(--ink); }
+    th { color: var(--muted); font-family: "IBM Plex Mono", monospace; font-size: .68rem; }
+    td { color: var(--ink); border-color: var(--line); }
+    [data-theme="dark"] {
+      --canvas: #171b19;
+      --surface: #202522;
+      --ink: #f1f0e9;
+      --muted: #aab2aa;
+      --line: #46504a;
+      --soft: #2a332e;
+      --accent: #ff705d;
+      --accent-dark: #ff9b8d;
+      --focus: #a4d8cb;
+    }
+    [data-theme="dark"] .topbar { background: #101412; }
+    [data-theme="dark"] .brand-mark { background: var(--accent); box-shadow: 5px 5px 0 #dba846; }
+    [data-theme="dark"] .login { color: var(--ink); background: transparent; border-color: var(--line); }
+    [data-theme="dark"] .login:hover { color: #101412; background: var(--accent); border-color: var(--accent); }
+    [data-theme="dark"] input, [data-theme="dark"] select { color: var(--ink); background: #131715; border-color: var(--line); }
+    [data-theme="dark"] button.secondary { color: var(--ink); border-color: var(--line); }
+    [data-theme="dark"] button.secondary:hover { color: var(--ink); background: var(--soft); border-color: var(--ink); }
+    .intro { grid-template-columns: minmax(0, 1.08fr) minmax(300px, .92fr); gap: 3rem 5rem; align-items: start; }
+    .intro-copy { min-width: 0; }
+    .intro h1 { max-width: 720px; }
+    .intro-copy p:last-child { max-width: 470px; }
+    .audit-visual { align-self: stretch; min-height: 212px; padding: 1.25rem; color: var(--ink); background: var(--surface); border: 1px solid var(--ink); box-shadow: 10px 10px 0 var(--accent); }
+    .audit-visual-top, .audit-visual-bottom { display: flex; justify-content: space-between; gap: 1rem; font-family: "IBM Plex Mono", monospace; font-size: .64rem; letter-spacing: .04em; }
+    .audit-visual-top strong { color: var(--accent-dark); font-weight: 600; }
+    .signal-bars { display: flex; align-items: end; gap: 5px; height: 112px; margin: 1.25rem 0 1rem; border-bottom: 1px solid var(--line); }
+    .signal-bars i { flex: 1; min-width: 4px; height: 28%; background: var(--ink); opacity: .75; }
+    .signal-bars i:nth-child(2n) { height: 54%; }
+    .signal-bars i:nth-child(3n) { height: 78%; }
+    .signal-bars i:nth-child(5n) { height: 94%; background: var(--accent); opacity: 1; }
+    .signal-bars i:nth-child(7n) { height: 43%; }
+    .signal-bars i:nth-child(11n) { height: 18%; background: var(--accent); opacity: 1; }
+    .audit-visual-bottom { color: var(--muted); }
+    .workflow { grid-column: 1 / -1; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 1rem; padding-top: 1.25rem; border-top: 1px solid var(--line); }
+    .workflow li { min-height: 72px; padding: 0 1.25rem 0 0; border-top: 0; border-right: 1px solid var(--line); }
+    .workflow li:not(:first-child) { padding-left: 1.25rem; }
+    .workflow li:last-child { border-right: 0; }
+    .workflow li:first-child { border-color: var(--line); }
+    .workflow li::before { margin-bottom: .45rem; }
+    .workflow strong { font-size: .9rem; }
+    .workflow span { display: block; margin-top: .35rem; color: var(--muted); font-family: "IBM Plex Mono", monospace; font-size: .64rem; line-height: 1.35; }
+    [data-theme="dark"] .audit-visual { background: var(--surface); }
+    [data-theme="dark"] .signal-bars i { background: var(--ink); }
+    [data-theme="dark"] .signal-bars i:nth-child(5n), [data-theme="dark"] .signal-bars i:nth-child(11n) { background: var(--accent); }
+    @media (max-width: 800px) {
+      .intro { display: block; }
+      .audit-visual { margin-top: 2rem; }
+      .workflow { margin-top: 2rem; }
+      form { display: block; }
+      form h2:nth-of-type(2) { margin-top: 2rem; }
+    }
+    @media (max-width: 600px) {
+      .topbar-inner, main { width: min(100% - 2rem, 760px); }
+      main { padding-top: 2.5rem; }
+      .topbar-inner { min-height: 64px; }
+      .site-footer { width: min(100% - 2rem, 760px); flex-direction: column; }
+      .mobile-cta { display: block; position: fixed; right: 1rem; bottom: 1rem; left: 1rem; z-index: 5; padding: .8rem 1rem; color: #fff; background: var(--accent); border: 1px solid var(--accent); border-radius: 4px; box-shadow: 0 6px 18px rgb(0 0 0 / 18%); font-weight: 700; text-align: center; text-decoration: none; }
+      body { padding-bottom: 4.5rem; }
+      .menu-toggle { display: inline-flex; width: 42px; min-height: 40px; padding: .45rem; align-items: center; justify-content: center; }
+      .site-nav { display: none; position: absolute; top: 100%; right: 1rem; left: 1rem; margin: 0; padding: .65rem; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 8px 20px rgb(0 0 0 / 14%); }
+      .site-nav.is-open { display: grid; gap: .2rem; }
+      .site-nav a { padding: .65rem; }
+      .topbar-inner { position: relative; }
+      .topbar-actions { margin-left: auto; }
+      .scroll-top { bottom: 5.5rem; }
+      .cookie-banner { align-items: stretch; flex-direction: column; gap: .65rem; }
+      .intro { margin-bottom: 2.5rem; padding-bottom: 1.5rem; }
+      .intro h1 { font-size: clamp(2.4rem, 12vw, 4rem); }
+      .workflow { grid-template-columns: 1fr; gap: .65rem; }
+      .workflow li, .workflow li:not(:first-child) { display: block; min-height: 0; padding: .7rem 0 0; border-right: 0; border-top: 1px solid var(--line); }
+      .workflow li::before { display: inline; margin: 0 .5rem 0 0; }
+      .workflow strong { display: inline; }
+      .workflow span { margin: .3rem 0 0 1.7rem; }
+      .audit-visual { box-shadow: 6px 6px 0 var(--accent); }
+      .topbar-actions .login { font-size: .78rem; }
+    }
+
+    /* Keep the interface practical: this is a student project, not a brand campaign. */
+    :root {
+      --canvas: #f4f6f5;
+      --surface: #ffffff;
+      --ink: #202624;
+      --muted: #66716c;
+      --line: #d4dbd7;
+      --soft: #edf1ef;
+      --accent: #1f8f59;
+      --accent-dark: #176b43;
+      --focus: #2b6d9b;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    }
+    body { color: var(--ink); background: var(--canvas); font-size: .95rem; }
+    .topbar { background: var(--surface); border-bottom: 1px solid var(--line); }
+    .topbar-inner { width: min(1080px, calc(100% - 2.5rem)); min-height: 64px; }
+    .brand { gap: .55rem; color: var(--ink); font-size: .95rem; font-weight: 700; letter-spacing: 0; }
+    .brand-mark { width: 10px; height: 10px; background: var(--accent); box-shadow: none; border-radius: 50%; }
+    .topbar-actions { gap: .5rem; }
+    .theme-toggle { width: 40px; height: 40px; color: var(--muted); border-color: var(--line); border-radius: 4px; }
+    .theme-toggle:hover { color: var(--ink); background: var(--soft); border-color: var(--line); }
+    .login { padding: .55rem .75rem; color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 4px; font-size: .85rem; }
+    .login:hover { color: var(--ink); background: var(--soft); border-color: var(--ink); }
+    main { width: min(900px, calc(100% - 2.5rem)); padding: 3.5rem 0 5rem; }
+    .intro { display: block; margin-bottom: 2.5rem; padding: 0 0 1.75rem; border-bottom: 1px solid var(--line); }
+    .eyebrow { margin-bottom: .6rem; color: var(--accent-dark); font-family: inherit; font-size: .8rem; font-weight: 700; letter-spacing: 0; text-transform: none; }
+    .intro h1 { max-width: 650px; color: var(--ink); font-size: clamp(2rem, 5vw, 3.4rem); font-weight: 700; letter-spacing: -.035em; line-height: 1.05; }
+    .intro p { max-width: 560px; margin-top: .9rem; color: var(--muted); font-size: 1rem; line-height: 1.5; }
+    .workflow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 2rem 0 0; padding: 1rem 0 0; color: var(--muted); border-top: 1px solid var(--line); font-family: inherit; font-size: .8rem; }
+    .workflow li, .workflow li:not(:first-child) { min-height: 0; padding: 0; border: 0; }
+    .workflow li::before { display: none; }
+    .workflow strong { display: block; color: var(--ink); font-family: inherit; font-size: .85rem; }
+    .workflow span { display: block; margin-top: .3rem; color: var(--muted); font-family: inherit; font-size: .8rem; line-height: 1.35; }
+    .intro-meta { margin-top: 1.5rem; padding: .75rem 1rem; color: var(--muted); background: var(--soft); border-left: 3px solid var(--accent); font-family: inherit; font-size: .8rem; }
+    .intro-meta strong { color: var(--ink); font-family: inherit; font-size: inherit; text-transform: none; }
+    form { display: grid; grid-template-columns: 1fr 1fr; gap: 0 2rem; padding: 1.5rem 0; background: transparent; border: 0; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--line); border-radius: 0; box-shadow: none; }
+    form h2 { margin: 0 0 1rem; padding: 0 0 .7rem; border-bottom: 1px solid var(--line); font-family: Georgia, "Times New Roman", serif; font-size: 1.2rem; }
+    form h2:nth-of-type(2) { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+    .section-icon { width: 1rem; height: 1rem; margin-right: .35rem; color: var(--accent-dark); }
+    label { margin: .75rem 0 1.1rem; color: var(--ink); font-size: .85rem; font-weight: 700; }
+    input, select { min-height: 42px; padding: .55rem .65rem; color: var(--ink); background: var(--surface); border: 1px solid #aab7b0; border-radius: 4px; }
+    button { min-height: 42px; padding: .55rem .8rem; color: #fff; background: var(--accent); border-color: var(--accent); border-radius: 4px; font-size: .85rem; font-weight: 700; }
+    button:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+    button.secondary { color: var(--ink); background: var(--surface); border-color: #aab7b0; }
+    button.secondary:hover { color: var(--ink); background: var(--soft); border-color: #87958d; }
+    button[type="submit"] { min-width: 0; margin-top: .5rem; color: #fff; background: var(--accent); border-color: var(--accent); }
+    #target-help, #playlist-help, #lastfm-profile, #playlist-profile { margin: -.15rem 0 1rem; padding: .65rem .8rem; color: var(--muted); background: var(--soft); border-left: 3px solid var(--line); font-size: .8rem; }
+    section { margin-top: 2rem; padding: 1rem 0 0; border-top: 1px solid var(--line); }
+    section h2 { margin: 0 0 .4rem; font-family: Georgia, "Times New Roman", serif; font-size: 1.2rem; }
+    .muted { font-size: .85rem; }
+    #message { padding-left: 0; }
+    #review { margin-top: 2.5rem; }
+    #review > button { margin: .5rem 0 0; }
+    table { margin-top: 1rem; background: var(--surface); border: 1px solid var(--line); border-top: 2px solid var(--accent); }
+    th { color: var(--muted); font-family: inherit; font-size: .72rem; letter-spacing: 0; }
+    td { color: var(--ink); border-color: var(--line); }
+    [data-theme="dark"] { --canvas: #1b211e; --surface: #242b27; --ink: #edf2ee; --muted: #b6c1ba; --line: #46534b; --soft: #2e3932; --accent: #48bd7d; --accent-dark: #72d59d; --focus: #9ccced; }
+    [data-theme="dark"] .topbar { background: #141915; }
+    [data-theme="dark"] .brand-mark { background: var(--accent); }
+    [data-theme="dark"] .login, [data-theme="dark"] button.secondary { color: var(--ink); background: transparent; border-color: var(--line); }
+    [data-theme="dark"] .login:hover, [data-theme="dark"] button.secondary:hover { background: var(--soft); border-color: var(--ink); }
+    [data-theme="dark"] input, [data-theme="dark"] select { color: var(--ink); background: #171d19; border-color: var(--line); }
+    [data-theme="dark"] form { box-shadow: none; }
+    @media (max-width: 700px) {
+      main { width: min(100% - 2rem, 600px); padding-top: 2.5rem; }
+      .workflow { grid-template-columns: 1fr; gap: .75rem; }
+      form { display: block; padding: 1rem; }
+      form h2:nth-of-type(2) { margin-top: 1.5rem; }
+    }
+
+    /* Unified visual system: a working archive desk with clear, human-scale decisions. */
+    :root {
+      --canvas: #ebe8e1;
+      --surface: #f8f6f0;
+      --ink: #242522;
+      --muted: #6e7069;
+      --line: #c9c7bd;
+      --soft: #e2e0d7;
+      --accent: #e4573d;
+      --accent-dark: #a83b2b;
+      --focus: #236b66;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    }
+    body { color: var(--ink); background: var(--canvas); }
+    .topbar { position: sticky; top: 0; z-index: 10; color: var(--ink); background: rgb(248 246 240 / 94%); border-bottom: 1px solid var(--line); backdrop-filter: blur(10px); }
+    .topbar-inner { width: min(1160px, calc(100% - 3rem)); min-height: 68px; }
+    .brand { gap: .75rem; color: var(--ink); font-size: .92rem; font-weight: 700; letter-spacing: -.02em; }
+    .brand-mark { width: 13px; height: 13px; background: var(--accent); border-radius: 2px; box-shadow: 5px 5px 0 #f1b34f; }
+    .site-nav { gap: 1.25rem; margin-right: 1.25rem; }
+    .site-nav a, .breadcrumbs, .site-footer { color: var(--muted); }
+    .site-nav a:hover, .breadcrumbs a:hover, .site-footer a:hover { color: var(--accent-dark); }
+    .login { color: var(--surface); background: var(--ink); border-color: var(--ink); border-radius: 3px; }
+    .login:hover { color: var(--surface); background: var(--accent-dark); border-color: var(--accent-dark); }
+    .theme-toggle { color: var(--ink); border-color: var(--line); border-radius: 3px; }
+    .theme-toggle:hover { color: var(--ink); background: var(--soft); border-color: var(--ink); }
+    main { width: min(1160px, calc(100% - 3rem)); padding: 2.5rem 0 6rem; }
+    .breadcrumbs { margin-bottom: 2rem; font-size: .76rem; }
+    .breadcrumbs a, .site-footer a { color: var(--accent-dark); }
+    .intro { grid-template-columns: minmax(0, 1fr) minmax(300px, .72fr); gap: 3.5rem; margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--ink); }
+    .eyebrow { margin-bottom: .75rem; color: var(--accent-dark); font-family: Georgia, serif; font-size: .88rem; font-weight: 700; letter-spacing: 0; text-transform: none; }
+    .intro h1 { max-width: 700px; font-family: Georgia, "Times New Roman", serif; font-size: clamp(2.7rem, 6vw, 5rem); font-weight: 400; letter-spacing: -.065em; line-height: .96; }
+    .intro p { max-width: 500px; margin-top: 1.25rem; color: var(--muted); }
+    .intro-actions { margin-top: 1.5rem; }
+    .intro-actions a { padding: .7rem .9rem; color: var(--surface); background: var(--ink); border-color: var(--ink); border-radius: 3px; }
+    .intro-actions a:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+    .intro-actions a.secondary { color: var(--ink); background: transparent; border-color: var(--line); }
+    .intro-actions a.secondary:hover { background: var(--soft); border-color: var(--ink); }
+    .response-note { margin-top: 1rem !important; font-size: .78rem !important; }
+    .audit-visual { min-height: 220px; padding: 1.1rem; background: var(--surface); border: 1px solid var(--ink); box-shadow: 8px 8px 0 var(--accent); }
+    .signal-bars { height: 115px; margin: 1.35rem 0 1rem; }
+    .workflow { grid-column: 1 / -1; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--line); }
+    .workflow li { border-color: var(--line); }
+    .workflow li::before { color: var(--accent-dark); }
+    .workflow strong { color: var(--ink); }
+    .workflow span { color: var(--muted); }
+    .intro-meta { grid-column: 1 / -1; margin: 0; padding: .75rem 1rem; color: var(--muted); background: var(--soft); border-left: 3px solid var(--accent); font-size: .8rem; }
+    .intro-meta strong { color: var(--ink); }
+    form { display: grid; grid-template-columns: 1fr 1fr; gap: 0 2.5rem; padding: 1.5rem 0 2rem; border: 0; border-top: 3px solid var(--ink); border-bottom: 1px solid var(--line); }
+    form h2 { grid-column: 1 / -1; margin: 0 0 1rem; padding-bottom: .75rem; border-bottom: 1px solid var(--line); font-family: Georgia, serif; font-size: 1.25rem; font-weight: 400; }
+    form h2:nth-of-type(2) { margin-top: 2.25rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+    label { margin: .75rem 0 1.2rem; font-size: .86rem; }
+    input, select { min-height: 44px; padding: .6rem .7rem; color: var(--ink); background: var(--surface); border-color: #9da79e; border-radius: 3px; }
+    input:focus, select:focus, button:focus-visible, a:focus-visible { outline-color: var(--focus); }
+    button { min-height: 44px; padding: .6rem .85rem; color: var(--surface); background: var(--ink); border-color: var(--ink); border-radius: 3px; font-size: .86rem; }
+    button:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+    button.secondary { color: var(--ink); background: transparent; border-color: #9da79e; }
+    button.secondary:hover { color: var(--ink); background: var(--soft); border-color: var(--ink); }
+    button[type="submit"] { grid-column: 1 / -1; justify-self: start; min-width: 185px; margin-top: .5rem; background: var(--accent); border-color: var(--accent); }
+    button[type="submit"]:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+    #target-help, #playlist-help, #lastfm-profile, #playlist-profile { margin: -.15rem 0 1rem; padding: .7rem .85rem; background: var(--soft); border-left: 3px solid var(--line); border-radius: 0; }
+    #lastfm-profile, #playlist-profile { border-left-color: var(--accent); }
+    section { margin-top: 2.5rem; padding: 1.1rem 0 0; border-top: 1px solid var(--line); }
+    section h2 { font-family: Georgia, serif; font-size: 1.25rem; font-weight: 400; }
+    table { background: var(--surface); border: 1px solid var(--line); border-top: 3px solid var(--accent); }
+    th { color: var(--muted); }
+    td { color: var(--ink); border-color: var(--line); }
+    .cookie-banner { color: var(--ink); background: var(--surface); border-color: var(--line); }
+    .mobile-cta { background: var(--accent); border-color: var(--accent); }
+    [data-theme="dark"] { --canvas: #1b1d1b; --surface: #242724; --ink: #f1efe6; --muted: #b3b5ab; --line: #4d514a; --soft: #30342f; --accent: #f06b51; --accent-dark: #ff9a80; --focus: #91d7cf; }
+    [data-theme="dark"] .topbar { color: var(--ink); background: rgb(27 29 27 / 94%); border-color: var(--line); }
+    [data-theme="dark"] .brand, [data-theme="dark"] .login { color: var(--ink); }
+    [data-theme="dark"] .login { background: transparent; border-color: var(--line); }
+    [data-theme="dark"] .login:hover { color: #1b1d1b; background: var(--accent); border-color: var(--accent); }
+    [data-theme="dark"] input, [data-theme="dark"] select { color: var(--ink); background: #161816; border-color: var(--line); }
+    [data-theme="dark"] button.secondary { color: var(--ink); border-color: var(--line); }
+    [data-theme="dark"] button.secondary:hover { background: var(--soft); }
+    @media (max-width: 800px) {
+      .intro { display: block; }
+      .audit-visual { margin-top: 2rem; }
+      form { display: block; }
+      form h2:nth-of-type(2) { margin-top: 1.5rem; }
+    }
+    @media (max-width: 600px) {
+      .topbar-inner, main { width: min(100% - 2rem, 760px); }
+      main { padding-top: 2rem; }
+      .site-nav { display: none; }
+      .intro h1 { font-size: clamp(2.5rem, 13vw, 4rem); }
+      .workflow { grid-template-columns: 1fr; gap: .7rem; }
+      .workflow li, .workflow li:not(:first-child) { padding: .7rem 0 0; border-top: 1px solid var(--line); border-right: 0; }
+      .workflow li::before { display: inline; margin-right: .45rem; }
+      .workflow strong { display: inline; }
+      .workflow span { margin-left: 1.6rem; }
+      form { padding-top: 1.25rem; }
+    }
+
+    /* Cleanup console: navigation and staged controls are the product, not decoration. */
+    .app-shell { display: grid; grid-template-columns: 212px minmax(0, 1fr); gap: 3rem; align-items: start; }
+    .workspace-sidebar { position: sticky; top: 92px; min-height: calc(100vh - 150px); padding: .25rem 0 0; border-right: 1px solid var(--line); }
+    .sidebar-label, .workspace-id, .field-number, .step-index, .status-badge { color: var(--muted); font-family: "IBM Plex Mono", Consolas, monospace; font-size: .65rem; letter-spacing: .08em; text-transform: uppercase; }
+    .sidebar-project { display: flex; align-items: center; gap: .55rem; margin: 1.25rem 1.25rem 1.75rem 0; color: var(--ink); font-size: .82rem; font-weight: 700; }
+    .project-dot, .status-dot { display: inline-block; width: 7px; height: 7px; flex: 0 0 auto; background: var(--accent); border-radius: 50%; }
+    .sidebar-more { margin-left: auto; color: var(--muted); font-size: 1rem; letter-spacing: .1em; }
+    .sidebar-nav { display: grid; gap: .25rem; margin-right: 1rem; }
+    .sidebar-nav a { display: flex; gap: .8rem; align-items: center; padding: .65rem .7rem; color: var(--muted); border-left: 2px solid transparent; font-size: .8rem; text-decoration: none; }
+    .sidebar-nav a span { color: var(--muted); font-family: "IBM Plex Mono", Consolas, monospace; font-size: .65rem; }
+    .sidebar-nav a:hover { color: var(--ink); background: var(--soft); }
+    .sidebar-nav a.is-active { color: var(--ink); background: var(--soft); border-left-color: var(--accent); font-weight: 700; }
+    .sidebar-footer { display: flex; gap: .6rem; align-items: flex-start; margin: auto 1.25rem 0 0; padding-top: 1rem; color: var(--muted); border-top: 1px solid var(--line); font-size: .72rem; line-height: 1.5; }
+    .sidebar-footer .status-dot { margin-top: .32rem; background: #5bb77b; }
+    .sidebar-footer small { color: var(--muted); font-size: .68rem; }
+    .workspace-content { min-width: 0; max-width: 930px; }
+    .workspace-toolbar { display: flex; justify-content: space-between; gap: 1rem; align-items: center; margin-bottom: 2.25rem; }
+    .workspace-toolbar .breadcrumbs { margin: 0; }
+    .workspace-heading { display: flex; justify-content: space-between; gap: 3rem; align-items: end; padding-bottom: 2rem; border-bottom: 1px solid var(--ink); }
+    .workspace-heading h1 { max-width: 680px; margin: 0; color: var(--ink); font-family: Georgia, "Times New Roman", serif; font-size: clamp(2.25rem, 4vw, 4.2rem); font-weight: 400; letter-spacing: -.06em; line-height: .98; }
+    .workspace-heading p:not(.eyebrow) { max-width: 510px; margin: 1rem 0 0; color: var(--muted); font-size: .95rem; }
+    .readiness { display: grid; grid-template-columns: auto 1fr; gap: .35rem .55rem; min-width: 160px; padding: .8rem 0 0; border-top: 2px solid var(--accent); }
+    .readiness .status-dot { margin-top: .28rem; }
+    .readiness strong { font-size: .78rem; }
+    .readiness small { grid-column: 2; color: var(--muted); font-size: .68rem; }
+    .metric-strip { display: grid; grid-template-columns: repeat(3, 1fr); margin: 1.25rem 0 2.25rem; border: 1px solid var(--line); }
+    .metric-strip div { display: grid; gap: .3rem; padding: .85rem 1rem; border-right: 1px solid var(--line); }
+    .metric-strip div:last-child { border-right: 0; }
+    .metric-strip span { color: var(--muted); font-family: "IBM Plex Mono", Consolas, monospace; font-size: .62rem; text-transform: uppercase; }
+    .metric-strip strong { font-size: .86rem; }
+    .setup-panel, .status-panel, .review-panel, .method-panel { margin: 0 0 1.5rem; padding: 0; background: transparent; border: 0; }
+    .panel-heading, .section-heading { display: flex; justify-content: space-between; gap: 1rem; align-items: start; margin-bottom: 1.25rem; padding-bottom: .8rem; border-bottom: 1px solid var(--line); }
+    .panel-heading > div, .section-heading > div { display: flex; gap: .8rem; align-items: baseline; }
+    .panel-heading h2, .section-heading h2 { margin: 0; padding: 0; border: 0; font-family: Georgia, serif; font-size: 1.25rem; font-weight: 400; }
+    .panel-heading p { margin: 0; color: var(--muted); font-size: .76rem; }
+    .step-index { color: var(--accent-dark); }
+    .setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.75rem; }
+    .setup-column { padding: 1rem; background: var(--soft); border: 1px solid var(--line); }
+    .field-heading { display: flex; gap: .7rem; align-items: flex-start; margin-bottom: 1rem; }
+    .field-number { display: inline-grid; width: 1.35rem; height: 1.35rem; place-items: center; color: var(--surface); background: var(--ink); border-radius: 50%; font-size: .58rem; }
+    .field-heading strong, .field-heading small { display: block; }
+    .field-heading strong { font-size: .82rem; }
+    .field-heading small { margin-top: .2rem; color: var(--muted); font-size: .7rem; }
+    .setup-panel label { margin: 1rem 0 0; font-size: .75rem; font-weight: 700; }
+    .setup-panel input, .setup-panel select { width: 100%; margin-top: .4rem; min-height: 42px; font-size: .82rem; }
+    .inline-field { display: flex; gap: .5rem; align-items: center; }
+    .inline-field input { min-width: 0; }
+    .inline-field button { flex: 0 0 auto; min-height: 42px; padding: .5rem .65rem; font-size: .72rem; }
+    .setup-panel #target-help, .setup-panel #playlist-help, .setup-panel #lastfm-profile, .setup-panel #playlist-profile { margin: .7rem 0 0; padding: .6rem .7rem; font-size: .7rem; }
+    #playlist-row .inline-field { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; width: 100%; }
+    #playlist-row .inline-field input { width: 100%; min-width: 0; }
+    #username-row .inline-field { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; width: 100%; }
+    #username-row .inline-field input { width: 100%; min-width: 0; }
+    .threshold-row { display: flex; justify-content: space-between; gap: 2rem; align-items: center; margin-top: 1.5rem; padding: 1rem 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .threshold-row .field-heading { margin: 0; }
+    .threshold-controls { display: flex; gap: .5rem; min-width: 220px; }
+    .threshold-controls select { margin: 0; }
+    .panel-footer { display: flex; justify-content: space-between; gap: 1rem; align-items: center; margin-top: 1rem; }
+    .panel-footer > span { display: flex; gap: .5rem; align-items: center; color: var(--muted); font-size: .72rem; }
+    .panel-footer button { min-width: 130px; }
+    .status-panel { padding-top: 1.1rem; border-top: 2px solid var(--ink); }
+    .status-panel .section-heading { margin-bottom: .8rem; }
+    .status-panel .muted { min-height: 1.3rem; margin: 0; }
+    .status-badge { padding: .3rem .45rem; color: var(--muted); background: var(--soft); }
+    .progress-track { height: 4px; margin-top: 1rem; overflow: hidden; background: var(--soft); }
+    .progress-track span { display: block; width: 0; height: 100%; background: var(--accent); transition: width .3s ease; }
+    .review-panel { margin-top: 3rem; padding-top: 1.25rem; border-top: 2px solid var(--ink); }
+    .review-panel .section-heading { align-items: center; }
+    .review-panel .section-heading button { min-height: 36px; padding: .45rem .65rem; font-size: .72rem; }
+    .review-panel table { margin-top: 1.25rem; }
+    .method-panel { margin-top: 3rem; }
+    .method-panel .faq-list { margin-top: 1rem; }
+    @media (max-width: 850px) { .app-shell { display: block; } .workspace-sidebar { position: static; min-height: 0; margin-bottom: 2rem; padding-bottom: 1rem; border-right: 0; border-bottom: 1px solid var(--line); } .sidebar-nav { display: flex; margin: 0; } .sidebar-nav a { flex: 1; } .sidebar-footer { display: none; } }
+    @media (max-width: 650px) { .workspace-toolbar, .workspace-heading, .panel-footer, .threshold-row { display: block; } .workspace-id { display: block; margin-top: .6rem; } .readiness { margin-top: 1.5rem; } .metric-strip, .setup-grid { grid-template-columns: 1fr; } .metric-strip div { border-right: 0; border-bottom: 1px solid var(--line); } .metric-strip div:last-child { border-bottom: 0; } .setup-column + .setup-column { margin-top: 1rem; } .threshold-controls { min-width: 0; margin-top: 1rem; } .panel-footer button { width: 100%; margin-top: 1rem; } .sidebar-nav a { justify-content: center; padding: .55rem .25rem; font-size: .68rem; } }
+
+    /* Task-first revision: keep the familiar copy and put the decision surface first. */
+    main { width: min(980px, calc(100% - 3rem)); padding: 2.25rem 0 5rem; }
+    .app-shell { display: block; }
+    .workspace-sidebar, .metric-strip, .readiness { display: none; }
+    .workspace-content { max-width: none; }
+    .workspace-toolbar { margin-bottom: 1.5rem; }
+    .workspace-heading { display: block; padding-bottom: 1.25rem; }
+    .workspace-heading h1 { max-width: 620px; font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 700; letter-spacing: -.035em; line-height: 1.05; }
+    .workspace-heading p:not(.eyebrow) { max-width: 560px; margin-top: .75rem; }
+    .setup-panel { display: block; grid-template-columns: none; margin-top: 1.5rem; padding: 1.25rem 0 1.5rem; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--line); }
+    .panel-heading { margin-bottom: 1rem; padding-bottom: .7rem; }
+    .panel-heading h2, .section-heading h2 { font-family: inherit; font-size: 1.1rem; font-weight: 700; }
+    .setup-grid { gap: 2rem; }
+    .setup-column { padding: 0; background: transparent; border: 0; }
+    .setup-column + .setup-column { border-left: 1px solid var(--line); padding-left: 2rem; }
+    .field-heading { margin-bottom: .75rem; }
+    .field-heading strong { font-size: .9rem; }
+    .field-heading small { display: none; }
+    .field-number, .step-index { display: none; }
+    .threshold-row { margin-top: 1rem; padding: .9rem 0; }
+    .panel-footer { margin-top: .9rem; }
+    .panel-footer button { min-width: 165px; }
+    .status-panel { margin-top: 1.5rem; padding-top: .85rem; }
+    .status-panel .section-heading, .review-panel .section-heading, .method-panel .section-heading { margin-bottom: .65rem; padding-bottom: .55rem; }
+    .method-panel { margin-top: 2.25rem; }
+    @media (max-width: 650px) { main { width: min(100% - 2rem, 680px); padding-top: 1.5rem; } .workspace-toolbar { margin-bottom: 1.25rem; } .workspace-heading h1 { font-size: clamp(1.85rem, 9vw, 2.7rem); } .setup-panel { padding-top: 1rem; } .setup-grid { gap: 1.25rem; } .setup-column + .setup-column { padding-top: 1.25rem; padding-left: 0; border-top: 1px solid var(--line); border-left: 0; } #playlist-row .inline-field, #username-row .inline-field { grid-template-columns: minmax(0, 1fr) auto auto; } .threshold-row { display: flex; align-items: center; } .threshold-controls { margin-top: 0; } .panel-footer { display: flex; align-items: center; } .panel-footer button { width: auto; margin-top: 0; } }
+
+    /* Listening-room visual language: glass depth and music-led contrast without changing the workflow. */
+    :root {
+      --canvas: #0d1110;
+      --surface: rgb(28 34 31 / 72%);
+      --ink: #f4f2ea;
+      --muted: #a9b0aa;
+      --line: rgb(255 255 255 / 14%);
+      --soft: rgb(255 255 255 / 7%);
+      --accent: #c8f36a;
+      --accent-dark: #e2ff9a;
+      --focus: #9ed9d0;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    }
+    body { position: relative; overflow-x: hidden; color: var(--ink); background: #0d1110; }
+    body::before { position: fixed; inset: 0; z-index: -2; background: linear-gradient(135deg, #101613 0%, #17201b 48%, #0b0f0e 100%); content: ""; }
+    body::after { position: fixed; inset: 0; z-index: -1; opacity: .28; background-image: radial-gradient(rgb(255 255 255 / 14%) .7px, transparent .7px); background-size: 22px 22px; content: ""; mask-image: linear-gradient(to bottom, #000, transparent 72%); }
+    .topbar { color: var(--ink); background: rgb(13 17 16 / 72%); border-bottom: 1px solid var(--line); backdrop-filter: blur(18px); }
+    .topbar-inner { width: min(1180px, calc(100% - 3rem)); min-height: 72px; }
+    .brand { color: var(--ink); letter-spacing: -.02em; }
+    .brand-mark { background: var(--accent); box-shadow: 5px 5px 0 #829d46; }
+    .site-nav a { color: var(--muted); }
+    .site-nav a:hover { color: var(--ink); }
+    .login { color: #10130f; background: var(--accent); border-color: var(--accent); border-radius: 999px; }
+    .login:hover { color: #10130f; background: var(--accent-dark); border-color: var(--accent-dark); }
+    .theme-toggle { color: var(--ink); background: rgb(255 255 255 / 5%); border-color: var(--line); border-radius: 999px; }
+    .theme-toggle:hover { color: var(--ink); background: rgb(255 255 255 / 11%); border-color: rgb(255 255 255 / 28%); }
+    main { width: min(1180px, calc(100% - 3rem)); padding: 2.25rem 0 6rem; }
+    .breadcrumbs { color: var(--muted); }
+    .breadcrumbs a { color: var(--ink); }
+    .workspace-heading { padding: 1.25rem 0 2rem; border-bottom-color: var(--line); }
+    .workspace-heading h1 { color: var(--ink); font-size: clamp(2.2rem, 5vw, 4.4rem); font-weight: 600; letter-spacing: -.055em; }
+    .workspace-heading p:not(.eyebrow) { color: var(--muted); }
+    .eyebrow { color: var(--accent); }
+    .setup-panel { position: relative; margin-top: 1.75rem; padding: 1.5rem; background: linear-gradient(135deg, rgb(255 255 255 / 10%), rgb(255 255 255 / 4%)); border: 1px solid var(--line); border-radius: 24px; box-shadow: 0 30px 90px rgb(0 0 0 / 28%); backdrop-filter: blur(22px); }
+    .setup-panel::before { position: absolute; top: 0; right: 12%; left: 12%; height: 1px; background: linear-gradient(90deg, transparent, rgb(255 255 255 / 55%), transparent); content: ""; }
+    .panel-heading { border-bottom-color: var(--line); }
+    .panel-heading h2, .section-heading h2 { color: var(--ink); }
+    .setup-grid { gap: 1.5rem; }
+    .setup-column { padding: 1.25rem; background: rgb(0 0 0 / 12%); border: 1px solid rgb(255 255 255 / 10%); border-radius: 16px; }
+    .setup-column + .setup-column { padding-left: 1.25rem; border-left: 1px solid rgb(255 255 255 / 10%); }
+    .field-heading strong, label { color: var(--ink); }
+    .setup-panel input, .setup-panel select { color: var(--ink); background: rgb(5 9 7 / 56%); border-color: rgb(255 255 255 / 17%); border-radius: 12px; }
+    .setup-panel input::placeholder { color: #7f8b83; }
+    .setup-panel input:hover, .setup-panel select:hover { border-color: rgb(255 255 255 / 30%); }
+    .setup-panel #target-help, .setup-panel #playlist-help, .setup-panel #lastfm-profile, .setup-panel #playlist-profile { color: var(--muted); background: rgb(255 255 255 / 5%); border: 0; border-radius: 10px; }
+    .inline-field button { border-radius: 999px; }
+    .threshold-row { border-color: var(--line); }
+    .panel-footer > span { color: var(--muted); }
+    button { color: #10130f; background: var(--accent); border-color: var(--accent); border-radius: 999px; }
+    button:hover { color: #10130f; background: var(--accent-dark); border-color: var(--accent-dark); }
+    button.secondary { color: var(--ink); background: rgb(255 255 255 / 6%); border-color: var(--line); }
+    button.secondary:hover { color: var(--ink); background: rgb(255 255 255 / 12%); border-color: rgb(255 255 255 / 30%); }
+    button[type="submit"] { color: #10130f; background: var(--accent); border-color: var(--accent); box-shadow: 0 8px 24px rgb(200 243 106 / 16%); }
+    button[type="submit"]:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+    .status-panel, .review-panel, .method-panel { border-color: var(--line); }
+    .status-panel { padding: 1.25rem 1.5rem; background: rgb(255 255 255 / 4%); border: 1px solid var(--line); border-radius: 18px; }
+    .progress-track { background: rgb(255 255 255 / 10%); border-radius: 999px; }
+    .progress-track span { background: var(--accent); border-radius: 999px; }
+    .review-panel { padding-top: 1.5rem; }
+    table { overflow: hidden; background: rgb(255 255 255 / 5%); border: 1px solid var(--line); border-top: 2px solid var(--accent); border-radius: 16px; }
+    th, td { border-color: var(--line); }
+    td { color: var(--ink); }
+    .faq-list details { border-color: var(--line); }
+    .faq-list summary { color: var(--ink); }
+    .site-footer { color: var(--muted); border-color: var(--line); }
+    .site-footer a { color: var(--ink); }
+    .cookie-banner { color: var(--ink); background: rgb(28 34 31 / 92%); border-color: var(--line); border-radius: 16px; backdrop-filter: blur(20px); }
+    dialog { color: var(--ink); background: #1c241f; border-color: var(--line); border-radius: 18px; }
+    [data-theme="light"] { --canvas: #e7ebe5; --surface: rgb(255 255 255 / 72%); --ink: #18211b; --muted: #647067; --line: rgb(23 39 29 / 16%); --soft: rgb(23 39 29 / 7%); --accent: #78a934; --accent-dark: #587f21; --focus: #236b66; }
+    [data-theme="light"] body { background: #e7ebe5; }
+    [data-theme="light"] body::before { background: linear-gradient(135deg, #eef2ed, #dce5dc); }
+    [data-theme="light"] body::after { opacity: .16; background-image: radial-gradient(rgb(20 45 28 / 18%) .7px, transparent .7px); }
+    [data-theme="light"] .topbar { color: var(--ink); background: rgb(245 248 243 / 76%); }
+    [data-theme="light"] .setup-panel { background: linear-gradient(135deg, rgb(255 255 255 / 74%), rgb(255 255 255 / 42%)); box-shadow: 0 24px 70px rgb(47 72 50 / 13%); }
+    [data-theme="light"] .setup-column { background: rgb(255 255 255 / 32%); border-color: var(--line); }
+    [data-theme="light"] .setup-panel input, [data-theme="light"] .setup-panel select { color: var(--ink); background: rgb(255 255 255 / 72%); border-color: rgb(23 39 29 / 25%); }
+    [data-theme="light"] button.secondary { color: var(--ink); background: rgb(255 255 255 / 42%); }
+    @media (max-width: 650px) { main { width: min(100% - 2rem, 680px); } .setup-panel { padding: 1rem; border-radius: 18px; } .setup-column { padding: .9rem; } .setup-column + .setup-column { padding-left: .9rem; } .status-panel { padding: 1rem; } }
+
+    /* Reference composition: one generous listening surface, two purposeful columns, sans-serif type. */
+    :root { font-family: "Avenir Next", "Segoe UI", sans-serif; }
+    .workspace-content { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(430px, .95fr); gap: 1.5rem 3.5rem; max-width: none; padding: 3.25rem; background: linear-gradient(135deg, rgb(255 255 255 / 9%), rgb(255 255 255 / 3%)); border: 1px solid var(--line); border-radius: 30px; box-shadow: 0 40px 120px rgb(0 0 0 / 28%); backdrop-filter: blur(24px); }
+    .workspace-toolbar { grid-column: 1 / -1; margin: 0; }
+    .workspace-heading { grid-column: 1; align-self: center; margin: 1rem 0 0; padding: 0; border: 0; }
+    .workspace-heading h1 { max-width: 560px; font-family: inherit; font-size: clamp(2.6rem, 5vw, 4.8rem); font-weight: 650; letter-spacing: -.065em; line-height: 1.02; }
+    .workspace-heading p:not(.eyebrow) { max-width: 460px; margin-top: 1.25rem; font-size: 1rem; line-height: 1.6; }
+    .setup-panel { grid-column: 2; align-self: stretch; margin: 0; padding: 1.75rem; border: 1px solid rgb(255 255 255 / 16%); border-radius: 24px; background: rgb(8 12 10 / 38%); box-shadow: 0 25px 80px rgb(0 0 0 / 24%); }
+    .setup-grid { grid-template-columns: 1fr; gap: 1rem; }
+    .setup-column { padding: 1rem; border-radius: 18px; }
+    .setup-column + .setup-column { padding-left: 1rem; border-top: 1px solid rgb(255 255 255 / 10%); border-left: 0; }
+    .threshold-row { margin-top: 1.25rem; }
+    .status-panel, .review-panel, .method-panel { grid-column: 1 / -1; }
+    .status-panel { margin-top: .5rem; }
+    .review-panel, .method-panel { margin-top: 1.5rem; }
+    .panel-heading h2, .section-heading h2 { font-size: 1.05rem; letter-spacing: -.02em; }
+    label, button, input, select { font-family: inherit; }
+    @media (max-width: 900px) {
+      .workspace-content { grid-template-columns: 1fr; gap: 1.5rem; padding: 2rem; }
+      .workspace-heading, .setup-panel, .status-panel, .review-panel, .method-panel { grid-column: 1; }
+      .workspace-heading { margin-top: .5rem; }
+      .setup-panel { margin-top: 0; }
+    }
+    @media (max-width: 650px) {
+      .workspace-content { width: 100%; padding: 1.25rem; border-radius: 22px; }
+      .workspace-heading h1 { font-size: clamp(2.35rem, 12vw, 3.5rem); }
+      .setup-panel { padding: 1rem; border-radius: 18px; }
+    }
+    </style>
+  </template>
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <header class="topbar"><div class="topbar-inner"><a class="brand" href="/"><span>Library cleanup</span></a><div class="topbar-actions"><button id="theme-toggle" class="theme-toggle" type="button" aria-label="Use dark mode" aria-pressed="false" title="Use dark mode" data-tooltip="Use dark mode"><span id="theme-icon" aria-hidden="true"></span><span class="sr-only">Use dark mode</span></button><a id="spotify-login" class="login" href="/login">Connect Spotify</a></div></div></header>
+  <main id="main-content">
+  <div class="app-shell">
+    <aside class="workspace-sidebar" aria-label="Cleanup navigation">
+      <div class="sidebar-brand"><span class="brand-mark" aria-hidden="true"></span><span class="sidebar-brand-copy">Library cleanup<small>Spotify library tool</small></span><button id="sidebar-toggle" type="button" aria-label="Collapse navigation" title="Collapse navigation">‹</button></div>
+      <div class="sidebar-label">Library</div>
+      <nav class="sidebar-nav"><a class="is-active" href="#analysis-form"><span class="sidebar-icon" aria-hidden="true">⌂</span><span class="sidebar-link-text">Cleanup</span></a><a href="#review"><span class="sidebar-icon" aria-hidden="true">≡</span><span class="sidebar-link-text">Review candidates</span></a></nav>
+      <div class="sidebar-label sidebar-label-secondary">Help</div>
+      <nav class="sidebar-nav"><a href="#faq"><span class="sidebar-icon" aria-hidden="true">?</span><span class="sidebar-link-text">Frequently Asked Questions</span></a><a href="/privacy"><span class="sidebar-icon" aria-hidden="true">◌</span><span class="sidebar-link-text">Privacy policy</span></a></nav>
+      <div class="sidebar-footer"><span class="status-dot"></span><span class="sidebar-link-text">Local session<br><small>No changes made</small></span></div>
+    </aside>
+    <div class="workspace-content">
+      <div class="workspace-toolbar"><div class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>/</span><span>Library cleanup</span></div></div>
+      <div class="workspace-heading"><div><h1>Clean up your library.</h1><p>Find music you have not played recently, review the results, and choose what to remove.</p><div class="intro-actions"><a href="#analysis-form">Start a cleanup</a></div><p class="response-note">Most playlist checks start within a few seconds. Large history exports may take longer and show live progress.</p><ol class="workflow"><li><strong>Choose a source</strong><span>Last.fm or Spotify export</span></li><li><strong>Find old tracks</strong><span>Set how long is too long</span></li><li><strong>Review and remove</strong><span>Nothing changes without confirmation</span></li></ol></div></div>
+
+      <form id="analysis-form" class="setup-panel">
+        <div class="panel-heading"><div><h2>Listening history</h2><p>Choose where your play history comes from.</p></div></div>
+        <div class="setup-grid">
+          <div class="setup-column">
+            <label>History source<div class="source-select"><img id="history-source-mark" class="source-mark" src="/lastfm-logo.svg" alt="Last.fm"><select name="source" id="source"><option value="lastfm">Last.fm username / URL</option><option value="spotify-export">Spotify extended-history ZIP</option></select></div></label>
+            <label id="username-row">Last.fm username or profile URL<div class="inline-field lastfm-input"><input type="text" name="username" id="username" placeholder="Username or last.fm/user/..." autocomplete="off"><button type="button" id="paste-username" class="secondary">Paste</button><button type="button" id="find-profile" class="secondary">Find profile</button></div></label>
+            <div id="lastfm-profile" class="muted" hidden></div>
+            <label id="zip-row" hidden>Spotify export ZIP<input type="file" name="historyZip" id="historyZip" accept=".zip"></label>
+          </div>
+          <div class="setup-column"><div class="field-heading"><div><strong><img class="source-mark" src="/spotify-official-logo.svg" alt="">Spotify collection</strong></div></div>
+            <label>Track collection<select name="targetType" id="targetType" aria-describedby="target-help"><option value="liked">Liked Songs</option><option value="playlist">Playlist</option></select></label>
+            <div id="target-help" class="muted">Spotify login is required to read and remove tracks from your selected collection.</div>
+            <label id="playlist-row" hidden>Playlist link or ID<div class="inline-field"><input type="text" name="playlistId" id="playlistId" placeholder="Paste a Spotify playlist link or ID" autocomplete="off"><button type="button" id="paste-playlist" class="secondary">Paste</button><button type="button" id="find-playlist" class="secondary">Check</button></div></label>
+            <div id="playlist-help" class="muted" hidden>Use a sharable playlist link or ID, or choose one from your Spotify account.</div>
+            <div id="playlist-picker-wrap" hidden><label>Choose a playlist<select id="playlistPicker"></select></label><button type="button" id="load-playlists" class="secondary">Load my playlists</button></div>
+            <div id="playlist-profile" class="muted" hidden></div>
+          </div>
+        </div>
+        <div class="threshold-row"><div class="field-heading"><div><strong>Tracks Not Played in:</strong></div></div><div class="threshold-controls"><select name="staleAfterYears" id="staleAfterYears" aria-label="Years"><option value="1">1 year</option><option value="2" selected>2 years</option><option value="3">3 years</option><option value="5">5 years</option><option value="7">7 years</option><option value="10">10 years</option></select><select name="staleAfterMonths" id="staleAfterMonths" aria-label="Months"><option value="0" selected>0 months</option><option value="1">1 month</option><option value="2">2 months</option><option value="3">3 months</option><option value="4">4 months</option><option value="5">5 months</option><option value="6">6 months</option><option value="7">7 months</option><option value="8">8 months</option><option value="9">9 months</option><option value="10">10 months</option><option value="11">11 months</option></select></div></div>
+        <div class="panel-footer"><button type="submit"><svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg>Find old tracks</button></div>
+      </form>
+
+      <section class="status-panel"><div class="section-heading"><div><h2>Progress</h2></div></div><p id="message" class="muted" role="status" aria-live="polite">Choose a source and collection to begin.</p><div class="progress-track"><span></span></div></section>
+
+      <section id="review" class="review-panel" hidden><div class="section-heading"><div><h2>Review candidates</h2></div><button id="remove" type="button">Remove selected</button></div><p class="muted">Candidates start selected. Uncheck anything you want to keep.</p><table><thead><tr><th>Remove</th><th>Track</th><th>Artist</th><th>Last played</th></tr></thead><tbody id="tracks"></tbody></table></section>
+      <section id="faq" class="method-panel"><div class="section-heading"><div><h2>Frequently Asked Questions</h2></div></div><div class="faq-list"><details><summary>Does this remove tracks automatically?</summary><p>No. The app only removes tracks after you review the candidates and confirm the action.</p></details><details><summary>What data is stored?</summary><p>This local version keeps tokens and analysis results in memory while the server runs. Read the <a href="/privacy">privacy policy</a> before connecting an account.</p></details><details><summary>Why can a large export take a while?</summary><p>History files and Spotify collections are processed in the background. The progress area updates while work is running.</p></details></div></section>
+    </div>
+  </div>
+  </main>
+  <footer class="site-footer"><a href="/">Library cleanup</a><a href="/privacy">Privacy policy</a></footer>
+  <button id="scroll-top" class="scroll-top secondary" type="button" aria-label="Scroll to top" title="Scroll to top" hidden>↑</button>
+  <div id="cookie-banner" class="cookie-banner" role="region" aria-label="Cookie notice" hidden><p>This tool uses a small preference cookie for security and saves your theme choice in your browser. No advertising cookies are used.</p><button id="cookie-dismiss" type="button">Understood</button></div>
+  <dialog id="confirm-modal" aria-labelledby="confirm-title"><h2 id="confirm-title">Remove selected tracks?</h2><p id="confirm-copy">This action cannot be undone here.</p><div class="dialog-actions"><button id="confirm-cancel" class="secondary" type="button">Keep them</button><button id="confirm-continue" type="button">Remove tracks</button></div></dialog>
+
+  <script>
+    const form = document.querySelector('#analysis-form');
+    const source = document.querySelector('#source');
+    const historySourceMark = document.querySelector('#history-source-mark');
+    const targetType = document.querySelector('#targetType');
+    const playlistId = document.querySelector('#playlistId');
+    const playlistPicker = document.querySelector('#playlistPicker');
+    const playlistPickerWrap = document.querySelector('#playlist-picker-wrap');
+    const message = document.querySelector('#message');
+    const review = document.querySelector('#review');
+    const tracksBody = document.querySelector('#tracks');
+    const themeToggle = document.querySelector('#theme-toggle');
+    const themeIcon = document.querySelector('#theme-icon');
+    const submitButton = form.querySelector('button[type="submit"]');
+    const confirmModal = document.querySelector('#confirm-modal');
+    let job;
+
+    function applyTheme(theme) {
+      const isDark = theme === 'dark';
+      document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
+      const themeLabel = isDark ? 'Use light mode' : 'Use dark mode';
+      themeIcon.innerHTML = isDark
+        ? '<svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>'
+        : '<svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.5A8 8 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5Z"/></svg>';
+      themeToggle.setAttribute('aria-label', themeLabel);
+      themeToggle.setAttribute('title', themeLabel);
+      themeToggle.dataset.tooltip = themeLabel;
+      themeToggle.querySelector('.sr-only').textContent = themeLabel;
+      themeToggle.setAttribute('aria-pressed', String(isDark));
+    }
+
+    const savedTheme = localStorage.getItem('library-cleanup-theme');
+    const initialTheme = savedTheme || 'dark';
+    applyTheme(initialTheme);
+    themeToggle.addEventListener('click', () => {
+      const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('library-cleanup-theme', nextTheme);
+      applyTheme(nextTheme);
+    });
+
+    const sidebar = document.querySelector('.workspace-sidebar');
+    const sidebarToggle = document.querySelector('#sidebar-toggle');
+    sidebarToggle.addEventListener('click', () => {
+      const isCollapsed = sidebar.classList.toggle('is-collapsed');
+      sidebarToggle.setAttribute('aria-label', isCollapsed ? 'Expand navigation' : 'Collapse navigation');
+      sidebarToggle.title = isCollapsed ? 'Expand navigation' : 'Collapse navigation';
+    });
+
+    function setMessage(text, type = '') {
+      message.textContent = text;
+      message.className = `muted${type ? ` status-${type}` : ''}`;
+    }
+
+    function setLoading(button, isLoading) {
+      button.classList.toggle('is-loading', isLoading);
+      button.disabled = isLoading;
+    }
+
+    const scrollProgress = document.querySelector('#scroll-progress');
+    const scrollTop = document.querySelector('#scroll-top');
+    function updateScrollControls() {
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0;
+      scrollProgress.style.width = `${progress}%`;
+      scrollTop.hidden = window.scrollY < 420;
+    }
+    window.addEventListener('scroll', updateScrollControls, { passive: true });
+    scrollTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    updateScrollControls();
+
+    const cookieBanner = document.querySelector('#cookie-banner');
+    cookieBanner.hidden = false;
+    document.querySelector('#cookie-dismiss').addEventListener('click', () => {
+      cookieBanner.remove();
+    });
+
+    function updateSourceFields() {
+      document.querySelector('#username-row').hidden = source.value !== 'lastfm';
+      document.querySelector('#zip-row').hidden = source.value !== 'spotify-export';
+      const isLastFm = source.value === 'lastfm';
+      historySourceMark.src = isLastFm ? '/lastfm-logo.svg' : '/spotify-official-logo.svg';
+      historySourceMark.alt = isLastFm ? 'Last.fm' : 'Spotify';
+    }
+
+    function updateTargetFields() {
+      const showPlaylist = targetType.value === 'playlist';
+      document.querySelector('#playlist-row').hidden = !showPlaylist;
+      document.querySelector('#playlist-help').hidden = !showPlaylist;
+      document.querySelector('#target-help').textContent = showPlaylist
+        ? 'Spotify login is needed to read playlist contents. The playlist does not need to be listed on your profile.'
+        : source.value === 'lastfm'
+          ? 'Spotify login is required to read and remove tracks from your selected collection.'
+          : 'Spotify login is needed to read and remove tracks from your target.';
+    }
+
+    async function loadLastFmProfile() {
+      const username = document.querySelector('#username').value.trim();
+      const profileBox = document.querySelector('#lastfm-profile');
+
+      if (source.value !== 'lastfm' || !username) {
+        profileBox.hidden = true;
+        profileBox.textContent = '';
+        return;
+      }
+
+      try {
+        const response = await fetch(`/lastfm/profile?username=${encodeURIComponent(username)}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          profileBox.hidden = false;
+          profileBox.textContent = data.error || 'Could not load this Last.fm profile. Check the username and try again.';
+          return;
+        }
+
+        const profile = data.profile;
+        const profileName = profile?.realname || profile?.name || username;
+        const scrobbles = profile?.playcount ? Number(profile.playcount).toLocaleString() : '0';
+        const artists = profile?.artistCount ? Number(profile.artistCount).toLocaleString() : '0';
+        const joined = profile?.joinedAt ? new Date(profile.joinedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : 'Unknown';
+
+        profileBox.hidden = false;
+        profileBox.innerHTML = `
+          <strong>Connected to Last.fm:</strong> ${escapeHtml(profileName)}<br>
+          Scrobbles: ${scrobbles}<br>
+          Artists: ${artists}<br>
+          Joined: ${escapeHtml(joined)}
+        `;
+      } catch (error) {
+        profileBox.hidden = false;
+        profileBox.textContent = 'Could not load this Last.fm profile. Check the username and try again.';
+      }
+    }
+
+    function getStaleAfterMonthsValue() {
+      const years = Number(document.querySelector('#staleAfterYears').value || 0);
+      const months = Number(document.querySelector('#staleAfterMonths').value || 0);
+      return years * 12 + months;
+    }
+
+    async function loadPlaylistProfile() {
+      const playlistValue = document.querySelector('#playlistId').value.trim();
+      const profileBox = document.querySelector('#playlist-profile');
+
+      if (targetType.value !== 'playlist' || !playlistValue) {
+        profileBox.hidden = true;
+        profileBox.textContent = '';
+        return;
+      }
+
+      try {
+        const response = await fetch(`/spotify/playlist?playlistId=${encodeURIComponent(playlistValue)}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          profileBox.hidden = false;
+          profileBox.textContent = data.error || 'Could not load that Spotify playlist. Check the link or ID and try again.';
+          return;
+        }
+
+        const playlist = data.playlist;
+        const owner = playlist?.owner || 'Unknown';
+        const tracksTotal = Number(playlist?.tracksTotal || 0).toLocaleString();
+        const privacy = playlist?.public === false ? 'Private' : 'Public';
+
+        profileBox.hidden = false;
+        profileBox.innerHTML = `
+          <strong>Playlist confirmed:</strong> ${escapeHtml(playlist?.name || 'Unknown')}<br>
+          Owner: ${escapeHtml(owner)}<br>
+          Songs: ${tracksTotal}<br>
+          Visibility: ${escapeHtml(privacy)}
+        `;
+      } catch (error) {
+        profileBox.hidden = false;
+        profileBox.textContent = 'Could not load that Spotify playlist. Check the link or ID and try again.';
+      }
+    }
+
+    async function loadMyPlaylists() {
+      try {
+        const response = await fetch('/spotify/playlists');
+        const data = await response.json();
+
+        if (!response.ok) {
+          playlistPickerWrap.hidden = true;
+          playlistPicker.innerHTML = '';
+          message.textContent = data.error || 'Log in with Spotify to choose a playlist.';
+          return;
+        }
+
+        if (!Array.isArray(data) || data.length === 0) {
+          playlistPickerWrap.hidden = true;
+          message.textContent = 'No Spotify playlists were found on this account.';
+          return;
+        }
+
+        playlistPicker.innerHTML = '<option value="">Choose a playlist...</option>' + data.map((playlist) => `
+          <option value="${escapeHtml(String(playlist.id))}">${escapeHtml(playlist.name)} (${Number(playlist.tracksTotal || 0).toLocaleString()} tracks)</option>
+        `).join('');
+        playlistPickerWrap.hidden = false;
+        message.textContent = 'Choose a playlist from your Spotify account.';
+      } catch (error) {
+        playlistPickerWrap.hidden = true;
+        message.textContent = 'Log in with Spotify to choose a playlist.';
+      }
+    }
+
+    async function loadPlaylists() {
+      return loadMyPlaylists();
+    }
+
+    function renderReview() {
+      const stale = job.tracks.filter((track) => track.stale);
+      review.hidden = false;
+      tracksBody.innerHTML = stale.map((track) => `
+        <tr>
+          <td><input type="checkbox" data-id="${escapeHtml(String(track.id))}" aria-label="Remove ${escapeHtml(track.name)} by ${escapeHtml(track.artist)}" checked></td>
+          <td class="track-cell">${track.albumImage ? `<img class="track-art" src="${escapeHtml(track.albumImage)}" alt="" loading="lazy">` : '<span class="track-art track-art-empty" aria-hidden="true"></span>'}<span>${escapeHtml(track.name)}</span></td>
+          <td>${escapeHtml(track.artist)}</td>
+          <td>${track.lastPlayedAt ? new Date(track.lastPlayedAt).toLocaleDateString() : 'Never found'}</td>
+        </tr>`).join('');
+      message.textContent = `Found ${stale.length} old track(s) out of ${job.totalTracks}. Review the checked candidates.`;
+    }
+
+    function escapeHtml(value) {
+      return value.replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[character]);
+    }
+
+    function csrfFetch(url, options = {}) {
+      const csrfToken = document.cookie.split('; ').find((cookie) => cookie.startsWith('csrf_token='))?.split('=')[1];
+      return fetch(url, {
+        ...options,
+        headers: { ...(options.headers || {}), 'X-CSRF-Token': csrfToken || '' },
+      });
+    }
+
+    async function pollStatus() {
+      const response = await fetch('/analysis/status');
+      job = await response.json();
+      message.textContent = job.status === 'running'
+        ? `${job.phase}: ${job.tracksScanned || job.tracksFetched || 0} processed...`
+        : job.status === 'failed' ? `Analysis failed: ${job.error}` : `Analysis ${job.status}.`;
+      if (job.status === 'running') return setTimeout(pollStatus, 700);
+      if (job.status === 'completed') renderReview();
+    }
+
+    source.addEventListener('change', () => {
+      updateSourceFields();
+      updateTargetFields();
+      if (source.value !== 'lastfm') {
+        document.querySelector('#lastfm-profile').hidden = true;
+      }
+    });
+    targetType.addEventListener('change', () => {
+      updateTargetFields();
+      if (targetType.value !== 'playlist') {
+        document.querySelector('#playlist-profile').hidden = true;
+      }
+    });
+    document.querySelector('#find-profile').addEventListener('click', loadLastFmProfile);
+    document.querySelector('#paste-username').addEventListener('click', async () => {
+      try {
+        username.value = await navigator.clipboard.readText();
+        username.dispatchEvent(new Event('input'));
+        message.textContent = 'Last.fm username or profile URL pasted from your clipboard.';
+      } catch (error) {
+        message.textContent = 'Clipboard access was unavailable. Paste the Last.fm username or profile URL into the field instead.';
+      }
+    });
+    document.querySelector('#find-playlist').addEventListener('click', loadPlaylistProfile);
+    document.querySelector('#load-playlists').addEventListener('click', loadMyPlaylists);
+    document.querySelector('#paste-playlist').addEventListener('click', async () => {
+      try {
+        playlistId.value = await navigator.clipboard.readText();
+        playlistId.dispatchEvent(new Event('input'));
+        message.textContent = 'Playlist link pasted from your clipboard.';
+      } catch (error) {
+        message.textContent = 'Clipboard access was unavailable. Paste the playlist link into the field instead.';
+      }
+    });
+    document.querySelector('#playlistId').addEventListener('input', () => {
+      if (targetType.value === 'playlist') {
+        document.querySelector('#playlist-profile').hidden = true;
+      }
+    });
+    playlistPicker.addEventListener('change', () => {
+      if (!playlistPicker.value) {
+        return;
+      }
+      playlistId.value = playlistPicker.value;
+      loadPlaylistProfile();
+    });
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      review.hidden = true;
+      setLoading(submitButton, true);
+
+      const data = new FormData(form);
+      const playlistValue = String(data.get('playlistId') || '').trim();
+
+      if (targetType.value === 'playlist' && !playlistValue) {
+        setLoading(submitButton, false);
+        setMessage('Paste a sharable Spotify playlist link or ID before analyzing.', 'error');
+        return;
+      }
+
+      data.set('staleAfterMonths', String(getStaleAfterMonthsValue()));
+
+      try {
+        const response = await csrfFetch('/analysis', { method: 'POST', body: data });
+        const result = await response.json();
+        if (!response.ok) {
+          setMessage(result.error || 'Could not start the analysis.', 'error');
+          return;
+        }
+        setMessage('Analysis started. Progress will update below.', 'success');
+        pollStatus();
+      } catch (error) {
+        setMessage('Could not reach the server. Check your connection and try again.', 'error');
+      } finally {
+        setLoading(submitButton, false);
+      }
+    });
+
+    function confirmRemoval(count) {
+      return new Promise((resolve) => {
+        const finish = (confirmed) => {
+          confirmModal.close();
+          resolve(confirmed);
+        };
+        document.querySelector('#confirm-copy').textContent = `You are about to remove ${count} checked track(s). This cannot be undone here.`;
+        document.querySelector('#confirm-cancel').onclick = () => finish(false);
+        document.querySelector('#confirm-continue').onclick = () => finish(true);
+        confirmModal.addEventListener('cancel', () => finish(false), { once: true });
+        confirmModal.showModal();
+      });
+    }
+
+    document.querySelector('#remove').addEventListener('click', async () => {
+      const selectedIds = [...tracksBody.querySelectorAll('input:checked')].map((input) => input.dataset.id);
+      if (selectedIds.length === 0 || !(await confirmRemoval(selectedIds.length))) return;
+      const reviewResponse = await csrfFetch('/analysis/review', {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ selectedIds })
+      });
+      if (!reviewResponse.ok) {
+        const reviewResult = await reviewResponse.json();
+        setMessage(reviewResult.error || 'Could not save your review choices.', 'error');
+        return;
+      }
+      const response = await csrfFetch('/analysis/selected', { method: 'DELETE' });
+      const result = await response.json();
+      setMessage(response.ok ? `Removed ${result.removed} track(s).` : result.error, response.ok ? 'success' : 'error');
+      if (response.ok) review.hidden = true;
+    });
+
+    updateSourceFields();
+    updateTargetFields();
+  </script>
+</body>
+</html>

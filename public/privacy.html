@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy Policy | Spotify Library Cleanup</title>
+  <meta name="description" content="Learn how Spotify Library Cleanup handles Spotify tokens, Last.fm usernames, uploaded history exports, and analysis results.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="http://127.0.0.1:3000/privacy">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <style>
+    :root { color-scheme: dark; font-family: "Trebuchet MS", "Segoe UI", sans-serif; --canvas: #07110d; --surface: #111b15; --ink: #edf3ed; --muted: #c0cbc2; --line: #506052; --accent: #55cb93; }
+    * { box-sizing: border-box; }
+    body { min-width: 320px; margin: 0; color: var(--ink); background: var(--canvas) url("/music-background.png") center / cover fixed no-repeat; }
+    main { width: min(760px, calc(100% - 2rem)); margin: 2rem auto; padding: 2.5rem 3rem 3rem; background: rgb(17 27 21 / 94%); border: 1px solid var(--line); border-radius: 0; }
+    nav { display: flex; flex-wrap: wrap; gap: .55rem; margin-bottom: 2.5rem; padding-bottom: .9rem; color: var(--muted); border-bottom: 1px solid var(--line); font-size: .8rem; }
+    a { color: var(--accent); font-weight: 700; }
+    h1 { margin: 0 0 .75rem; font-size: clamp(2rem, 6vw, 3.2rem); line-height: 1.05; }
+    h2 { margin: 2rem 0 .5rem; font-size: 1.2rem; }
+    p, li { color: var(--muted); line-height: 1.65; }
+    .updated { font-size: .85rem; }
+    a:focus-visible { outline: 3px solid #2b6d9b; outline-offset: 3px; }
+    @media (max-width: 600px) { body { background-attachment: scroll; } main { margin: 1rem auto; padding: 1.5rem; } }
+  </style>
+</head>
+<body>
+  <main>
+    <nav aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><span aria-current="page">Privacy policy</span></nav>
+    <h1>Privacy policy</h1>
+    <p class="updated">Last updated: September 13, 2026</p>
+    <p>Spotify Library Cleanup is a local web tool for reviewing tracks that have not been played recently. This policy explains what the application handles when you run it.</p>
+    <h2>Data the app handles</h2>
+    <ul>
+      <li>Spotify access and refresh tokens are held in server memory to call Spotify on your behalf.</li>
+      <li>A Last.fm username and the listening history returned by Last.fm are used to match tracks when you choose that source.</li>
+      <li>Spotify history ZIP uploads are processed in memory and are not intentionally written to disk.</li>
+      <li>Analysis results and selected tracks are held in memory while the server is running.</li>
+    </ul>
+    <h2>What is not promised</h2>
+    <p>This project does not yet provide a persistent database, account system, multi-user isolation, audit log, or hosted data-retention controls. Run it locally, keep your environment variables private, and do not expose the development server directly to the public internet.</p>
+    <h2>Third parties</h2>
+    <p>When you use the tool, requests may be sent to Spotify and, if selected, Last.fm. Their own privacy policies and terms govern those services. The application does not sell personal data.</p>
+    <h2>Contact and changes</h2>
+    <p>For a deployed version, replace this page with the operator's legal contact details and a policy reviewed for the deployment jurisdiction. This policy changes when the application's storage or sharing behavior changes.</p>
+    <p><a href="/">Back to library cleanup</a></p>
+  </main>
+</body>
+</html>

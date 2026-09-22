@@ -1,0 +1,5 @@
+.env
+smoke-*.txt
+smoke-*.html
+node_modules/
+*.log
