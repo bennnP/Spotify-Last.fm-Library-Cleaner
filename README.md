@@ -89,11 +89,6 @@ playlist-modification permission requested at login.
 
 ## Notes
 
-- Your Spotify app is in Development Mode by default. Only accounts on the
-  allow-list in your dashboard can log in, up to 25 users. That's fine for
-  a personal project.
-- Tokens are stored in memory only, for local single-user use. This will
-  need proper session handling before any hosted deployment.
 - Security and deployment details are in [`SECURITY.md`](SECURITY.md).
 
 ## License
